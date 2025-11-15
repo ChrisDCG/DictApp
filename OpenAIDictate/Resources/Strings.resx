@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppDisplayName" xml:space="preserve">
+    <value>OpenAIDictate</value>
+  </data>
+  <data name="TrayReadyText" xml:space="preserve">
+    <value>Ready - press {0}</value>
+  </data>
+  <data name="TrayRecordingText" xml:space="preserve">
+    <value>● Recording ({0}:{1:D2}) - press {2} to stop</value>
+  </data>
+  <data name="TrayTranscribingText" xml:space="preserve">
+    <value>Transcribing…</value>
+  </data>
+  <data name="TrayUnknownState" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="TrayOfflineSuffix" xml:space="preserve">
+    <value> (Offline)</value>
+  </data>
+  <data name="ContextMenuSettings" xml:space="preserve">
+    <value>Settings…</value>
+  </data>
+  <data name="ContextMenuExit" xml:space="preserve">
+    <value>Quit</value>
+  </data>
+  <data name="HotkeyRegistrationError" xml:space="preserve">
+    <value>Failed to register the global hotkey ({0}).</value>
+  </data>
+  <data name="FatalErrorTitle" xml:space="preserve">
+    <value>OpenAIDictate - Error</value>
+  </data>
+  <data name="FatalErrorMessage" xml:space="preserve">
+    <value>A fatal error occurred:
+{0}
+
+The application will close.</value>
+  </data>
+  <data name="OfflineStartWarning" xml:space="preserve">
+    <value>No internet connection detected. Please connect and try again.</value>
+  </data>
+  <data name="MaxDurationReachedWarning" xml:space="preserve">
+    <value>Maximum recording duration ({0} min) reached. Stopping recording.</value>
+  </data>
+  <data name="OfflineAfterRecordingWarning" xml:space="preserve">
+    <value>No internet connection. Recording stopped, transcription will resume once you are online again.</value>
+  </data>
+  <data name="TranscriptionComplete" xml:space="preserve">
+    <value>Transcription completed ({0} characters).</value>
+  </data>
+  <data name="TranscriptionFailed" xml:space="preserve">
+    <value>Transcription failed: {0}</value>
+  </data>
+  <data name="RecordingFailed" xml:space="preserve">
+    <value>Recording could not be started: {0}</value>
+  </data>
+  <data name="OfflineWarning" xml:space="preserve">
+    <value>Offline mode active: no connection to the OpenAI API.</value>
+  </data>
+  <data name="OnlineInfo" xml:space="preserve">
+    <value>Internet connection restored. Transcription is available again.</value>
+  </data>
+  <data name="SettingsAppliedInfo" xml:space="preserve">
+    <value>Settings applied. Services have been reinitialized.</value>
+  </data>
+  <data name="HotkeyUpdatedInfo" xml:space="preserve">
+    <value>Hotkey updated to {0}.</value>
+  </data>
+  <data name="HotkeyUpdateFailed" xml:space="preserve">
+    <value>Hotkey could not be updated: {0}</value>
+  </data>
+  <data name="SettingsOpenError" xml:space="preserve">
+    <value>Settings dialog could not be opened: {0}</value>
+  </data>
+  <data name="SettingsDialogTitle" xml:space="preserve">
+    <value>OpenAIDictate - Settings</value>
+  </data>
+  <data name="SettingsTabGeneral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="SettingsTabAdvanced" xml:space="preserve">
+    <value>Advanced</value>
+  </data>
+  <data name="SettingsTabAbout" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="SaveButton" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="CancelButton" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ModelLabel" xml:space="preserve">
+    <value>Model:</value>
+  </data>
+  <data name="ModelOptionGpt4o" xml:space="preserve">
+    <value>gpt-4o-transcribe (best quality, $0.006/min)</value>
+  </data>
+  <data name="ModelOptionGpt4oMini" xml:space="preserve">
+    <value>gpt-4o-mini-transcribe (faster, $0.003/min)</value>
+  </data>
+  <data name="ModelOptionGpt4oDiarize" xml:space="preserve">
+    <value>gpt-4o-transcribe-diarize (speaker labels, $0.008/min)</value>
+  </data>
+  <data name="ModelOptionWhisper" xml:space="preserve">
+    <value>whisper-1 (legacy)</value>
+  </data>
+  <data name="TranscriptionLanguageLabel" xml:space="preserve">
+    <value>Transcription language (ISO code):</value>
+  </data>
+  <data name="LanguagePlaceholder" xml:space="preserve">
+    <value>e.g. de, en, fr</value>
+  </data>
+  <data name="HotkeyLabel" xml:space="preserve">
+    <value>Hotkey (start/stop):</value>
+  </data>
+  <data name="HotkeyHelp" xml:space="preserve">
+    <value>Format: F5, Ctrl+F9, Alt+Shift+F10 …</value>
+  </data>
+  <data name="MaxRecordingLabel" xml:space="preserve">
+    <value>Max recording (minutes):</value>
+  </data>
+  <data name="GlossaryLabel" xml:space="preserve">
+    <value>Custom glossary:
+(Domain-specific terms, names, products – comma separated)</value>
+  </data>
+  <data name="GlossaryPlaceholder" xml:space="preserve">
+    <value>Example: Supreme Court, damages, § 280 BGB, Contoso GmbH</value>
+  </data>
+  <data name="PostProcessingLabel" xml:space="preserve">
+    <value>LLM post-processing (punctuation via GPT-4o-mini)</value>
+  </data>
+  <data name="ServerChunkingLabel" xml:space="preserve">
+    <value>OpenAI server auto chunking (VAD + loudness normalization)</value>
+  </data>
+  <data name="VadLabel" xml:space="preserve">
+    <value>Voice Activity Detection (Silero VAD – removes silence and non-speech)</value>
+  </data>
+  <data name="VadThresholdLabel" xml:space="preserve">
+    <value>VAD speech probability threshold:</value>
+  </data>
+  <data name="VadMinSilenceLabel" xml:space="preserve">
+    <value>Minimum silence between segments (ms):</value>
+  </data>
+  <data name="VadMinSpeechLabel" xml:space="preserve">
+    <value>Minimum speech duration (ms):</value>
+  </data>
+  <data name="VadPadLabel" xml:space="preserve">
+    <value>Padding per speech segment (ms):</value>
+  </data>
+  <data name="LogProbabilitiesLabel" xml:space="preserve">
+    <value>Return token log probabilities (gpt-4o models only)</value>
+  </data>
+  <data name="DiarizedOutputLabel" xml:space="preserve">
+    <value>Include diarized JSON output (speaker-attributed transcript)</value>
+  </data>
+  <data name="UiLanguageLabel" xml:space="preserve">
+    <value>User interface language:</value>
+  </data>
+  <data name="UiLanguageHelp" xml:space="preserve">
+    <value>Applies immediately for tray text. Full UI refresh may require reopening dialogs.</value>
+  </data>
+  <data name="BestPracticesGroup" xml:space="preserve">
+    <value>OpenAI Best Practices</value>
+  </data>
+  <data name="BestPracticesText" xml:space="preserve">
+    <value>These presets follow official OpenAI Cookbook guidance:
+• Natural-language glossaries improve recognition
+• GPT-generated prompts add domain context
+• Temperature = 0 guarantees deterministic output
+• Post-processing polishes punctuation and formatting</value>
+  </data>
+  <data name="AboutText" xml:space="preserve">
+    <value>OpenAIDictate v1.2.0
+
+Professional voice dictation powered by OpenAI gpt-4o-transcribe.
+
+Highlights:
+• State-of-the-art accuracy (≥99%)
+• Global hotkey for any application
+• GPT-generated prompts for maximum quality
+• LLM-based post-processing
+• DPAPI encryption for API keys
+• No administrator rights required
+
+Built on:
+• OpenAI Cookbook best practices
+• Official API documentation
+• NAudio + Silero VAD
+
+License: MIT
+© 2025 OpenAIDictate Contributors</value>
+  </data>
+  <data name="SettingsSavedStatus" xml:space="preserve">
+    <value>✓ Settings saved successfully!</value>
+  </data>
+  <data name="SettingsSaveError" xml:space="preserve">
+    <value>✗ Failed to save settings: {0}</value>
+  </data>
+  <data name="GenericError" xml:space="preserve">
+    <value>Error: {0}</value>
+  </data>
+  <data name="HotkeyEmptyError" xml:space="preserve">
+    <value>Hotkey must not be empty.</value>
+  </data>
+  <data name="HotkeyInvalidError" xml:space="preserve">
+    <value>Invalid hotkey format. Examples: F5, Ctrl+Shift+F10.</value>
+  </data>
+  <data name="ApiKeyRequired" xml:space="preserve">
+    <value>An OpenAI API key is required. The application will close.</value>
+  </data>
+  <data name="ApiKeyPromptTitle" xml:space="preserve">
+    <value>OpenAIDictate - API Key</value>
+  </data>
+  <data name="ApiKeyPromptMessage" xml:space="preserve">
+    <value>Please enter your OpenAI API key:
+(available at platform.openai.com)</value>
+  </data>
+  <data name="DialogOk" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="DialogCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="TrayTooltipPrefix" xml:space="preserve">
+    <value>OpenAIDictate - </value>
+  </data>
+  <data name="SettingsRestartNotice" xml:space="preserve">
+    <value>Some UI changes may require reopening dialogs to display the new language.</value>
+  </data>
+</root>

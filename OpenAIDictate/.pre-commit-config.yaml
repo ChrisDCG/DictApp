@@ -1,0 +1,100 @@
+# Pre-commit Configuration für OpenAIDictate
+# Installation: pip install pre-commit && pre-commit install
+# Manueller Lauf: pre-commit run --all-files
+
+default_install_hook_types: [pre-commit, commit-msg]
+fail_fast: false
+
+repos:
+  # Standard Checks - schnell und effektiv
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+        exclude: \.png$|\.jpg$|\.ico$|\.resx$
+      - id: check-yaml
+      - id: check-json
+      - id: check-xml
+      - id: check-added-large-files
+        args: ['--maxkb=5000']
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # .NET Formatierung - automatisches Fixing
+  - repo: local
+    hooks:
+      - id: dotnet-format
+        name: dotnet format
+        entry: dotnet format
+        args: ['--include']
+        language: system
+        types: [c-sharp]
+        pass_filenames: true
+        require_serial: true
+        description: "Automatisches Code-Formatting mit dotnet format"
+
+      - id: dotnet-build
+        name: dotnet build (quick)
+        entry: bash -c 'dotnet build OpenAIDictate.sln --no-restore --nologo -clp:ErrorsOnly'
+        language: system
+        types: [c-sharp]
+        pass_filenames: false
+        description: "Schneller Build-Check"
+
+      - id: dotnet-test-changed
+        name: dotnet test (affected)
+        entry: bash -c 'dotnet test OpenAIDictate.Tests/OpenAIDictate.Tests.csproj --no-build --nologo --verbosity quiet'
+        language: system
+        types: [c-sharp]
+        pass_filenames: false
+        description: "Tests ausführen"
+        stages: [pre-commit]
+
+      - id: csharp-analyzers
+        name: Roslyn Analyzers Check
+        entry: bash -c 'dotnet build OpenAIDictate.sln /warnaserror /p:TreatWarningsAsErrors=false /p:EnforceCodeStyleInBuild=true --no-restore --nologo -clp:ErrorsOnly 2>&1 | grep -v "warning" || true'
+        language: system
+        types: [c-sharp]
+        pass_filenames: false
+        description: "Statische Code-Analyse"
+        verbose: true
+
+  # EditorConfig Validation
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: 2.7.3
+    hooks:
+      - id: editorconfig-checker
+        exclude: \.png$|\.jpg$|\.ico$|\.resx$|\.csproj$|\.sln$
+
+  # YAML/JSON Linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.33.0
+    hooks:
+      - id: yamllint
+        args: [-c=.yamllint.yml]
+
+  # Security Checks
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package-lock.json
+
+# Performance-Optimierung
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: [dotnet-build, dotnet-test-changed, csharp-analyzers]
+  submodules: false

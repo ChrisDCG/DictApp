@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppDisplayName" xml:space="preserve">
+    <value>OpenAIDictate</value>
+  </data>
+  <data name="TrayReadyText" xml:space="preserve">
+    <value>Bereit – {0} drücken</value>
+  </data>
+  <data name="TrayRecordingText" xml:space="preserve">
+    <value>● Aufnahme läuft ({0}:{1:D2}) – {2} zum Stoppen</value>
+  </data>
+  <data name="TrayTranscribingText" xml:space="preserve">
+    <value>Transkription läuft…</value>
+  </data>
+  <data name="TrayUnknownState" xml:space="preserve">
+    <value>Unbekannt</value>
+  </data>
+  <data name="TrayOfflineSuffix" xml:space="preserve">
+    <value> (Offline)</value>
+  </data>
+  <data name="ContextMenuSettings" xml:space="preserve">
+    <value>Einstellungen…</value>
+  </data>
+  <data name="ContextMenuExit" xml:space="preserve">
+    <value>Beenden</value>
+  </data>
+  <data name="HotkeyRegistrationError" xml:space="preserve">
+    <value>Globaler Hotkey konnte nicht registriert werden ({0}).</value>
+  </data>
+  <data name="FatalErrorTitle" xml:space="preserve">
+    <value>OpenAIDictate – Fehler</value>
+  </data>
+  <data name="FatalErrorMessage" xml:space="preserve">
+    <value>Es ist ein schwerwiegender Fehler aufgetreten:
+{0}
+
+Die Anwendung wird beendet.</value>
+  </data>
+  <data name="OfflineStartWarning" xml:space="preserve">
+    <value>Keine Internetverbindung erkannt. Bitte verbinden Sie sich und versuchen Sie es erneut.</value>
+  </data>
+  <data name="MaxDurationReachedWarning" xml:space="preserve">
+    <value>Maximale Aufnahmedauer ({0} Min) erreicht. Aufnahme wird beendet.</value>
+  </data>
+  <data name="OfflineAfterRecordingWarning" xml:space="preserve">
+    <value>Keine Internetverbindung. Aufnahme beendet – Transkription wird fortgesetzt, sobald Sie wieder online sind.</value>
+  </data>
+  <data name="TranscriptionComplete" xml:space="preserve">
+    <value>Transkription abgeschlossen ({0} Zeichen).</value>
+  </data>
+  <data name="TranscriptionFailed" xml:space="preserve">
+    <value>Transkription fehlgeschlagen: {0}</value>
+  </data>
+  <data name="RecordingFailed" xml:space="preserve">
+    <value>Aufnahme konnte nicht gestartet werden: {0}</value>
+  </data>
+  <data name="OfflineWarning" xml:space="preserve">
+    <value>Offline-Modus aktiv: Keine Verbindung zur OpenAI API.</value>
+  </data>
+  <data name="OnlineInfo" xml:space="preserve">
+    <value>Internetverbindung wiederhergestellt. Transkription ist wieder möglich.</value>
+  </data>
+  <data name="SettingsAppliedInfo" xml:space="preserve">
+    <value>Einstellungen übernommen. Dienste wurden neu initialisiert.</value>
+  </data>
+  <data name="HotkeyUpdatedInfo" xml:space="preserve">
+    <value>Hotkey auf {0} aktualisiert.</value>
+  </data>
+  <data name="HotkeyUpdateFailed" xml:space="preserve">
+    <value>Hotkey konnte nicht aktualisiert werden: {0}</value>
+  </data>
+  <data name="SettingsOpenError" xml:space="preserve">
+    <value>Einstellungsdialog konnte nicht geöffnet werden: {0}</value>
+  </data>
+  <data name="SettingsDialogTitle" xml:space="preserve">
+    <value>OpenAIDictate – Einstellungen</value>
+  </data>
+  <data name="SettingsTabGeneral" xml:space="preserve">
+    <value>Allgemein</value>
+  </data>
+  <data name="SettingsTabAdvanced" xml:space="preserve">
+    <value>Erweitert</value>
+  </data>
+  <data name="SettingsTabAbout" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="SaveButton" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="CancelButton" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="ModelLabel" xml:space="preserve">
+    <value>Modell:</value>
+  </data>
+  <data name="ModelOptionGpt4o" xml:space="preserve">
+    <value>gpt-4o-transcribe (beste Qualität, 0,006 $/Min)</value>
+  </data>
+  <data name="ModelOptionGpt4oMini" xml:space="preserve">
+    <value>gpt-4o-mini-transcribe (schneller, 0,003 $/Min)</value>
+  </data>
+  <data name="ModelOptionGpt4oDiarize" xml:space="preserve">
+    <value>gpt-4o-transcribe-diarize (Sprechererkennung, 0,008 $/Min)</value>
+  </data>
+  <data name="ModelOptionWhisper" xml:space="preserve">
+    <value>whisper-1 (Legacy)</value>
+  </data>
+  <data name="TranscriptionLanguageLabel" xml:space="preserve">
+    <value>Transkriptionssprache (ISO-Code):</value>
+  </data>
+  <data name="LanguagePlaceholder" xml:space="preserve">
+    <value>z. B. de, en, fr</value>
+  </data>
+  <data name="HotkeyLabel" xml:space="preserve">
+    <value>Hotkey (Start/Stopp):</value>
+  </data>
+  <data name="HotkeyHelp" xml:space="preserve">
+    <value>Format: F5, Strg+F9, Alt+Shift+F10 …</value>
+  </data>
+  <data name="MaxRecordingLabel" xml:space="preserve">
+    <value>Max. Aufnahme (Minuten):</value>
+  </data>
+  <data name="GlossaryLabel" xml:space="preserve">
+    <value>Benutzerdefiniertes Glossar:
+(Fachbegriffe, Namen, Produkte – kommagetrennt)</value>
+  </data>
+  <data name="GlossaryPlaceholder" xml:space="preserve">
+    <value>Beispiel: Bundesgerichtshof, Schadensersatz, § 280 BGB, Contoso GmbH</value>
+  </data>
+  <data name="PostProcessingLabel" xml:space="preserve">
+    <value>LLM-basierte Nachbearbeitung (Interpunktion via GPT-4o-mini)</value>
+  </data>
+  <data name="ServerChunkingLabel" xml:space="preserve">
+    <value>OpenAI-Server-Auto-Chunking (VAD + Lautstärke-Normalisierung)</value>
+  </data>
+  <data name="VadLabel" xml:space="preserve">
+    <value>Voice Activity Detection (Silero VAD – entfernt Stille und Nicht-Sprachanteile)</value>
+  </data>
+  <data name="VadThresholdLabel" xml:space="preserve">
+    <value>VAD-Sprachwahrscheinlichkeit (Schwellwert):</value>
+  </data>
+  <data name="VadMinSilenceLabel" xml:space="preserve">
+    <value>Minimale Stille zwischen Segmenten (ms):</value>
+  </data>
+  <data name="VadMinSpeechLabel" xml:space="preserve">
+    <value>Minimale Sprachdauer (ms):</value>
+  </data>
+  <data name="VadPadLabel" xml:space="preserve">
+    <value>Padding je Sprachsegment (ms):</value>
+  </data>
+  <data name="LogProbabilitiesLabel" xml:space="preserve">
+    <value>Token-Logwahrscheinlichkeiten zurückgeben (nur gpt-4o-Modelle)</value>
+  </data>
+  <data name="DiarizedOutputLabel" xml:space="preserve">
+    <value>Diarisiertes JSON mit Sprecherzuordnung ausgeben</value>
+  </data>
+  <data name="UiLanguageLabel" xml:space="preserve">
+    <value>Sprache der Benutzeroberfläche:</value>
+  </data>
+  <data name="UiLanguageHelp" xml:space="preserve">
+    <value>Wirkt sofort in der Tray-Anzeige. Dialoge bitte neu öffnen, um alle Texte zu aktualisieren.</value>
+  </data>
+  <data name="BestPracticesGroup" xml:space="preserve">
+    <value>OpenAI Best Practices</value>
+  </data>
+  <data name="BestPracticesText" xml:space="preserve">
+    <value>Diese Voreinstellungen orientieren sich am offiziellen OpenAI Cookbook:
+• Natürliche Glossare verbessern die Erkennung
+• GPT-generierte Prompts liefern Domänenkontext
+• Temperatur = 0 garantiert deterministische Ergebnisse
+• Nachbearbeitung optimiert Zeichensetzung und Format</value>
+  </data>
+  <data name="AboutText" xml:space="preserve">
+    <value>OpenAIDictate v1.2.0
+
+Professionelle Diktatlösung mit OpenAI gpt-4o-transcribe.
+
+Highlights:
+• State-of-the-Art Genauigkeit (≥99 %)
+• Globaler Hotkey für jede Anwendung
+• GPT-generierte Prompts für maximale Qualität
+• LLM-basierte Nachbearbeitung
+• DPAPI-Verschlüsselung für API-Keys
+• Keine Administratorrechte erforderlich
+
+Basiert auf:
+• OpenAI Cookbook Best Practices
+• Offizieller API-Dokumentation
+• NAudio + Silero VAD
+
+Lizenz: MIT
+© 2025 OpenAIDictate Contributors</value>
+  </data>
+  <data name="SettingsSavedStatus" xml:space="preserve">
+    <value>✓ Einstellungen erfolgreich gespeichert!</value>
+  </data>
+  <data name="SettingsSaveError" xml:space="preserve">
+    <value>✗ Fehler beim Speichern: {0}</value>
+  </data>
+  <data name="GenericError" xml:space="preserve">
+    <value>Fehler: {0}</value>
+  </data>
+  <data name="HotkeyEmptyError" xml:space="preserve">
+    <value>Hotkey darf nicht leer sein.</value>
+  </data>
+  <data name="HotkeyInvalidError" xml:space="preserve">
+    <value>Ungültiges Hotkey-Format. Beispiele: F5, Strg+Shift+F10.</value>
+  </data>
+  <data name="ApiKeyRequired" xml:space="preserve">
+    <value>OpenAI API-Schlüssel erforderlich. Die Anwendung wird beendet.</value>
+  </data>
+  <data name="ApiKeyPromptTitle" xml:space="preserve">
+    <value>OpenAIDictate – API-Schlüssel</value>
+  </data>
+  <data name="ApiKeyPromptMessage" xml:space="preserve">
+    <value>Bitte geben Sie Ihren OpenAI API-Schlüssel ein:
+(erhältlich unter platform.openai.com)</value>
+  </data>
+  <data name="DialogOk" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="DialogCancel" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="TrayTooltipPrefix" xml:space="preserve">
+    <value>OpenAIDictate – </value>
+  </data>
+  <data name="SettingsRestartNotice" xml:space="preserve">
+    <value>Einige UI-Änderungen werden erst nach erneutem Öffnen der Dialoge sichtbar.</value>
+  </data>
+</root>
