@@ -36,6 +36,10 @@ public class SettingsForm : Form
     private Button? _btnSave;
     private Button? _btnCancel;
     private Label? _lblStatus;
+    private ToolTip? _toolTip;
+    private const int LabelColumnLeft = 20;
+    private const int FieldColumnLeft = 200;
+    private const int FieldColumnWidth = 360;
     private bool _cachedDiarizedOutputPreference;
     private bool _cachedLogProbabilitiesPreference;
     private bool _suppressDiarizedCheckedEvent;
@@ -46,6 +50,8 @@ public class SettingsForm : Form
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _cachedDiarizedOutputPreference = _config.RequestDiarizedOutput;
         _cachedLogProbabilitiesPreference = _config.IncludeLogProbabilities;
+        SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+        UpdateStyles();
         InitializeComponent();
         LoadSettings();
     }
@@ -53,18 +59,34 @@ public class SettingsForm : Form
     private void InitializeComponent()
     {
         Text = SR.SettingsDialogTitle;
-        Width = 700;
-        Height = 600;
+        AutoScaleMode = AutoScaleMode.Dpi;
+        Width = 720;
+        Height = 640;
+        MinimumSize = new Size(720, 640);
         FormBorderStyle = FormBorderStyle.Sizable;
         StartPosition = FormStartPosition.CenterScreen;
         MaximizeBox = true;
         MinimizeBox = false;
+        BackColor = Color.FromArgb(240, 240, 240);
+        Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+        Padding = new Padding(0);
+
+        _toolTip = new ToolTip
+        {
+            AutomaticDelay = 200,
+            AutoPopDelay = 7000,
+            InitialDelay = 200,
+            ReshowDelay = 100,
+            UseFading = true,
+            UseAnimation = true
+        };
 
         // Tab Control
         _tabControl = new TabControl
         {
-            Dock = DockStyle.Top,
-            Height = 380
+            Dock = DockStyle.Fill,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular),
+            Padding = new Point(16, 8)
         };
 
         // Tab 1: General Settings
@@ -84,40 +106,68 @@ public class SettingsForm : Form
 
         Controls.Add(_tabControl);
 
-        // Status Label
+        var bottomPanel = new Panel
+        {
+            Dock = DockStyle.Bottom,
+            Height = 80,
+            Padding = new Padding(20, 10, 20, 20),
+            BackColor = Color.FromArgb(244, 244, 244)
+        };
+        Controls.Add(bottomPanel);
+
         _lblStatus = new Label
         {
-            Text = "",
-            Left = 20,
-            Top = 390,
-            Width = 560,
-            Height = 20,
-            ForeColor = Color.Blue
+            Text = string.Empty,
+            Dock = DockStyle.Left,
+            Width = 420,
+            Height = 30,
+            ForeColor = Color.FromArgb(0, 120, 215),
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular),
+            TextAlign = ContentAlignment.MiddleLeft
         };
-        Controls.Add(_lblStatus);
+        bottomPanel.Controls.Add(_lblStatus);
 
-        // Buttons
+        var buttonFlow = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Right,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            Padding = new Padding(0),
+            Margin = new Padding(0)
+        };
+        bottomPanel.Controls.Add(buttonFlow);
+
         _btnSave = new Button
         {
             Text = SR.SaveButton,
-            Left = 400,
-            Top = 420,
-            Width = 80,
-            Height = 30
+            Width = 110,
+            Height = 34,
+            FlatStyle = FlatStyle.Flat,
+            BackColor = Color.FromArgb(0, 120, 215),
+            ForeColor = Color.White,
+            Font = new Font("Segoe UI Semibold", 9F, FontStyle.Regular),
+            Margin = new Padding(0, 0, 10, 0)
         };
+        _btnSave.FlatAppearance.BorderSize = 0;
         _btnSave.Click += BtnSave_Click;
-        Controls.Add(_btnSave);
+        buttonFlow.Controls.Add(_btnSave);
 
         _btnCancel = new Button
         {
             Text = SR.CancelButton,
-            Left = 490,
-            Top = 420,
-            Width = 80,
-            Height = 30,
-            DialogResult = DialogResult.Cancel
+            Width = 110,
+            Height = 34,
+            FlatStyle = FlatStyle.Flat,
+            BackColor = Color.FromArgb(225, 225, 225),
+            ForeColor = Color.Black,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular),
+            DialogResult = DialogResult.Cancel,
+            Margin = new Padding(0)
         };
-        Controls.Add(_btnCancel);
+        _btnCancel.FlatAppearance.BorderSize = 0;
+        buttonFlow.Controls.Add(_btnCancel);
 
         AcceptButton = _btnSave;
         CancelButton = _btnCancel;
@@ -125,10 +175,18 @@ public class SettingsForm : Form
 
     private void CreateGeneralTab(TabPage tab)
     {
+        tab.BackColor = Color.White;
         int yPos = 20;
 
         // Model Selection
-        var lblModel = new Label { Text = SR.ModelLabel, Left = 20, Top = yPos, Width = 150 };
+        var lblModel = new Label
+        {
+            Text = SR.ModelLabel,
+            Left = 20,
+            Top = yPos,
+            Width = 150,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
+        };
         tab.Controls.Add(lblModel);
 
         _cmbModel = new ComboBox
@@ -136,7 +194,9 @@ public class SettingsForm : Form
             Left = 180,
             Top = yPos,
             Width = 350,
-            DropDownStyle = ComboBoxStyle.DropDownList
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         _cmbModel.Items.AddRange(new object[]
         {
@@ -150,7 +210,14 @@ public class SettingsForm : Form
         yPos += 40;
 
         // Language
-        var lblLanguage = new Label { Text = SR.TranscriptionLanguageLabel, Left = 20, Top = yPos, Width = 150 };
+        var lblLanguage = new Label
+        {
+            Text = SR.TranscriptionLanguageLabel,
+            Left = 20,
+            Top = yPos,
+            Width = 150,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
+        };
         tab.Controls.Add(lblLanguage);
 
         _cmbLanguage = new ComboBox
@@ -158,7 +225,9 @@ public class SettingsForm : Form
             Left = 180,
             Top = yPos - 3,
             Width = 200,
-            DropDownStyle = ComboBoxStyle.DropDownList
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         _cmbLanguage.Items.AddRange(new object[]
         {
@@ -173,7 +242,14 @@ public class SettingsForm : Form
         yPos += 40;
 
         // UI Language
-        var lblUiLanguage = new Label { Text = SR.UiLanguageLabel, Left = 20, Top = yPos, Width = 150 };
+        var lblUiLanguage = new Label
+        {
+            Text = SR.UiLanguageLabel,
+            Left = 20,
+            Top = yPos,
+            Width = 150,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
+        };
         tab.Controls.Add(lblUiLanguage);
 
         _cmbUiLanguage = new ComboBox
@@ -181,7 +257,9 @@ public class SettingsForm : Form
             Left = 180,
             Top = yPos - 3,
             Width = 200,
-            DropDownStyle = ComboBoxStyle.DropDownList
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
 
         foreach (var culture in LocalizationService.SupportedCultures)
@@ -197,13 +275,21 @@ public class SettingsForm : Form
             Left = 180,
             Top = yPos + 25,
             Width = 350,
-            ForeColor = Color.Gray
+            ForeColor = Color.Gray,
+            Font = new Font("Segoe UI", 8.25F, FontStyle.Regular)
         };
         tab.Controls.Add(lblUiLanguageHelp);
         yPos += 60;
 
         // Hotkey
-        var lblHotkey = new Label { Text = SR.HotkeyLabel, Left = 20, Top = yPos, Width = 150 };
+        var lblHotkey = new Label
+        {
+            Text = SR.HotkeyLabel,
+            Left = 20,
+            Top = yPos,
+            Width = 150,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
+        };
         tab.Controls.Add(lblHotkey);
 
         _cmbHotkey = new ComboBox
@@ -213,7 +299,8 @@ public class SettingsForm : Form
             Width = 200,
             DropDownStyle = ComboBoxStyle.DropDown,
             AutoCompleteMode = AutoCompleteMode.SuggestAppend,
-            AutoCompleteSource = AutoCompleteSource.ListItems
+            AutoCompleteSource = AutoCompleteSource.ListItems,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         _cmbHotkey.Items.AddRange(HotkeyParser.GetSuggestions().ToArray());
         tab.Controls.Add(_cmbHotkey);
@@ -224,13 +311,21 @@ public class SettingsForm : Form
             Left = 180,
             Top = yPos + 25,
             Width = 350,
-            ForeColor = Color.Gray
+            ForeColor = Color.Gray,
+            Font = new Font("Segoe UI", 8.25F, FontStyle.Regular)
         };
         tab.Controls.Add(lblHotkeyHelp);
         yPos += 60;
 
         // Max Recording Duration
-        var lblMaxRecording = new Label { Text = SR.MaxRecordingLabel, Left = 20, Top = yPos, Width = 150 };
+        var lblMaxRecording = new Label
+        {
+            Text = SR.MaxRecordingLabel,
+            Left = 20,
+            Top = yPos,
+            Width = 150,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
+        };
         tab.Controls.Add(lblMaxRecording);
 
         _numMaxRecording = new NumericUpDown
@@ -240,7 +335,8 @@ public class SettingsForm : Form
             Width = 100,
             Minimum = 1,
             Maximum = 30,
-            Value = 10
+            Value = 10,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(_numMaxRecording);
         yPos += 40;
@@ -251,8 +347,9 @@ public class SettingsForm : Form
             Text = SR.GlossaryLabel,
             Left = 20,
             Top = yPos,
-            Width = 540,
-            Height = 40
+            Width = 640,
+            Height = 40,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(lblGlossary);
         yPos += 45;
@@ -261,10 +358,12 @@ public class SettingsForm : Form
         {
             Left = 20,
             Top = yPos,
-            Width = 540,
-            Height = 80,
+            Width = 640,
+            Height = 100,
             Multiline = true,
-            ScrollBars = ScrollBars.Vertical
+            ScrollBars = ScrollBars.Vertical,
+            BorderStyle = BorderStyle.FixedSingle,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         SetPlaceholderText(_txtGlossary, SR.GlossaryPlaceholder);
         tab.Controls.Add(_txtGlossary);
@@ -272,6 +371,7 @@ public class SettingsForm : Form
 
     private void CreateAdvancedTab(TabPage tab)
     {
+        tab.BackColor = Color.White;
         int yPos = 20;
 
         // Post-Processing
@@ -280,8 +380,10 @@ public class SettingsForm : Form
             Text = SR.PostProcessingLabel,
             Left = 20,
             Top = yPos,
-            Width = 540,
-            Checked = true
+            Width = 640,
+            Checked = true,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(_chkPostProcessing);
         yPos += 40;
@@ -292,8 +394,10 @@ public class SettingsForm : Form
             Text = SR.ServerChunkingLabel,
             Left = 20,
             Top = yPos,
-            Width = 540,
-            Checked = true
+            Width = 640,
+            Checked = true,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(_chkServerChunking);
         yPos += 40;
@@ -304,8 +408,10 @@ public class SettingsForm : Form
             Text = SR.VadLabel,
             Left = 20,
             Top = yPos,
-            Width = 540,
-            Checked = true
+            Width = 640,
+            Checked = true,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(_chkVAD);
         yPos += 40;
@@ -316,7 +422,9 @@ public class SettingsForm : Form
             Text = SR.LogProbabilitiesLabel,
             Left = 20,
             Top = yPos,
-            Width = 540
+            Width = 640,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         _chkLogProbabilities.CheckedChanged += LogProbabilities_CheckedChanged;
         tab.Controls.Add(_chkLogProbabilities);
@@ -328,7 +436,9 @@ public class SettingsForm : Form
             Text = SR.DiarizedOutputLabel,
             Left = 20,
             Top = yPos,
-            Width = 540
+            Width = 640,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         _chkDiarizedOutput.CheckedChanged += DiarizedOutput_CheckedChanged;
         tab.Controls.Add(_chkDiarizedOutput);
@@ -340,7 +450,8 @@ public class SettingsForm : Form
             Text = SR.VadThresholdLabel,
             Left = 20,
             Top = yPos,
-            Width = 260
+            Width = 260,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(lblVadThreshold);
 
@@ -353,7 +464,8 @@ public class SettingsForm : Form
             Maximum = 0.95M,
             DecimalPlaces = 2,
             Increment = 0.05M,
-            Value = 0.50M
+            Value = 0.50M,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(_numVadThreshold);
         yPos += 40;
@@ -364,7 +476,8 @@ public class SettingsForm : Form
             Text = SR.VadMinSilenceLabel,
             Left = 20,
             Top = yPos,
-            Width = 260
+            Width = 260,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(lblVadMinSilence);
 
@@ -376,7 +489,8 @@ public class SettingsForm : Form
             Minimum = 50,
             Maximum = 2000,
             Increment = 10,
-            Value = 120
+            Value = 120,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(_numVadMinSilence);
         yPos += 40;
@@ -387,7 +501,8 @@ public class SettingsForm : Form
             Text = SR.VadMinSpeechLabel,
             Left = 20,
             Top = yPos,
-            Width = 260
+            Width = 260,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(lblVadMinSpeech);
 
@@ -399,7 +514,8 @@ public class SettingsForm : Form
             Minimum = 50,
             Maximum = 4000,
             Increment = 10,
-            Value = 250
+            Value = 250,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(_numVadMinSpeech);
         yPos += 40;
@@ -410,7 +526,8 @@ public class SettingsForm : Form
             Text = SR.VadPadLabel,
             Left = 20,
             Top = yPos,
-            Width = 260
+            Width = 260,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(lblVadPad);
 
@@ -422,7 +539,8 @@ public class SettingsForm : Form
             Minimum = 0,
             Maximum = 1000,
             Increment = 10,
-            Value = 60
+            Value = 60,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(_numVadPadding);
         yPos += 60;
@@ -433,18 +551,21 @@ public class SettingsForm : Form
             Text = SR.BestPracticesGroup,
             Left = 20,
             Top = yPos,
-            Width = 540,
-            Height = 120
+            Width = 640,
+            Height = 120,
+            Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+            FlatStyle = FlatStyle.Flat
         };
 
         var infoText = new Label
         {
             Text = SR.BestPracticesText,
             Left = 10,
-            Top = 20,
-            Width = 520,
+            Top = 25,
+            Width = 620,
             Height = 90,
-            ForeColor = Color.DarkGreen
+            ForeColor = Color.FromArgb(0, 100, 0),
+            Font = new Font("Segoe UI", 8.75F, FontStyle.Regular)
         };
         infoBox.Controls.Add(infoText);
         tab.Controls.Add(infoBox);
@@ -452,14 +573,17 @@ public class SettingsForm : Form
 
     private void CreateAboutTab(TabPage tab)
     {
+        tab.BackColor = Color.White;
+
         var aboutText = new Label
         {
             Text = SR.AboutText,
             Left = 20,
             Top = 20,
-            Width = 540,
-            Height = 320,
-            ForeColor = Color.Black
+            Width = 640,
+            Height = 400,
+            ForeColor = Color.Black,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(aboutText);
     }
@@ -756,9 +880,6 @@ public class SettingsForm : Form
 
             // Save to disk
             ConfigService.Save(_config);
-
-            // Clear prompt cache to regenerate with new settings
-            PromptGenerator.ClearCache();
 
             _lblStatus!.Text = string.Format(CultureInfo.CurrentCulture, "{0} {1}", SR.SettingsSavedStatus, SR.SettingsRestartNotice);
             _lblStatus.ForeColor = Color.Green;

@@ -74,20 +74,6 @@ public static class ServiceCollectionExtensions
             return new TranscriptionService(config, apiKey, logger, metrics, preprocessor);
         });
 
-        services.AddTransient<PromptGenerator>(sp =>
-        {
-            var config = sp.GetRequiredService<IOptions<AppConfig>>().Value;
-            var logger = sp.GetRequiredService<IAppLogger>();
-            var apiKey = ConfigService.GetApiKey(config);
-            
-            if (string.IsNullOrWhiteSpace(apiKey))
-            {
-                throw new InvalidOperationException("API key not configured");
-            }
-
-            return new PromptGenerator(apiKey, config, logger);
-        });
-
         services.AddTransient<AudioPreprocessor>(sp =>
         {
             var config = sp.GetRequiredService<IOptions<AppConfig>>().Value;

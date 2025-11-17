@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using OpenAIDictate.Infrastructure;
 using OpenAIDictate.Models;
 using OpenAIDictate.Resources;
 using OpenAIDictate.Services;
@@ -36,6 +37,7 @@ public class AppTrayContext : ApplicationContext
     private System.Windows.Forms.Timer? _recordingTimer;
     private System.Windows.Forms.Timer? _networkTimer;
     private bool _isOffline;
+    private readonly CursorPulseOverlay _cursorOverlay = new();
 
     /// <summary>
     /// Constructor with Dependency Injection support
@@ -70,7 +72,7 @@ public class AppTrayContext : ApplicationContext
         // Create tray icon
         _trayIcon = new NotifyIcon
         {
-            Icon = SystemIcons.Application, // TODO: Use custom icon
+            Icon = Branding.AppIcon,
             Visible = true
         };
 
@@ -214,6 +216,8 @@ public class AppTrayContext : ApplicationContext
         try
         {
             SetState(AppState.Recording);
+            _cursorOverlay.ShowAtCaret();
+            AudioCueService.PlayStartCue();
 
             // Create AudioRecorder if needed (transient service)
             if (_audioRecorder == null)
@@ -299,6 +303,7 @@ public class AppTrayContext : ApplicationContext
             string transcription = await _transcriptionService.TranscribeAsync(audioStream);
 
             // Inject text at cursor
+            _cursorOverlay.UpdatePosition();
             await TextInjector.InjectAsync(transcription);
 
             ShowInfo(string.Format(CultureInfo.CurrentCulture, SR.TranscriptionComplete, transcription.Length));
@@ -311,6 +316,8 @@ public class AppTrayContext : ApplicationContext
         }
         finally
         {
+            AudioCueService.PlayStopCue();
+            _cursorOverlay.HideOverlay();
             SetState(AppState.Idle);
         }
     }
