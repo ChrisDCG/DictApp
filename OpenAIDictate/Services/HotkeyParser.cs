@@ -103,16 +103,24 @@ public static class HotkeyParser
         var parts = new List<string>();
 
         if ((modifiers & (uint)KeyModifier.Control) != 0)
+        {
             parts.Add("Ctrl");
+        }
 
         if ((modifiers & (uint)KeyModifier.Alt) != 0)
+        {
             parts.Add("Alt");
+        }
 
         if ((modifiers & (uint)KeyModifier.Shift) != 0)
+        {
             parts.Add("Shift");
+        }
 
         if ((modifiers & (uint)KeyModifier.Win) != 0)
+        {
             parts.Add("Win");
+        }
 
         // Find key name
         var keyName = VirtualKeyCodes.FirstOrDefault(kvp => kvp.Value == virtualKey).Key ?? $"0x{virtualKey:X}";

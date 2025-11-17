@@ -54,7 +54,7 @@ public class TestFixture
         // Register real services for testing
         services.AddSingleton<NetworkStatusService>();
         services.AddSingleton<ConfigService>();
-        services.AddSingleton<SecretStore>();
+        // Note: SecretStore is static and doesn't need DI registration
 
         ServiceProvider = services.BuildServiceProvider();
     }

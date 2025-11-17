@@ -148,7 +148,9 @@ public class AudioRecorder : IDisposable
     public bool HasExceededMaxDuration()
     {
         if (_waveIn == null || _waveIn.WaveFormat == null)
+        {
             return false;
+        }
 
         TimeSpan elapsed = DateTime.Now - _recordingStartTime;
         return elapsed.TotalMinutes >= _config.MaxRecordingMinutes;
@@ -160,7 +162,9 @@ public class AudioRecorder : IDisposable
     public TimeSpan GetRecordingDuration()
     {
         if (_waveIn == null)
+        {
             return TimeSpan.Zero;
+        }
 
         return DateTime.Now - _recordingStartTime;
     }
@@ -173,7 +177,9 @@ public class AudioRecorder : IDisposable
     private void OnDataAvailable(object? sender, WaveInEventArgs e)
     {
         if (_waveWriter == null || _waveIn == null || e.BytesRecorded == 0)
+        {
             return;
+        }
 
         try
         {
@@ -208,7 +214,9 @@ public class AudioRecorder : IDisposable
     private void ResampleAndWrite(byte[] buffer, int bytesRecorded, WaveFormat sourceFormat, WaveFormat targetFormat)
     {
         if (_waveWriter == null)
+        {
             return;
+        }
 
         // Use ArrayPool to reduce GC pressure
         int bufferSize = targetFormat.AverageBytesPerSecond / 10; // 100ms buffer

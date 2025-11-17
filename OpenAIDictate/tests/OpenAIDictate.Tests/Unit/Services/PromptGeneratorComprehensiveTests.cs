@@ -49,7 +49,7 @@ public class PromptGeneratorComprehensiveTests : IDisposable
 
         // Assert
         generator.Should().NotBeNull();
-        generator.Dispose();
+        // PromptGenerator doesn't implement IDisposable
     }
 
     [Fact]
@@ -163,7 +163,8 @@ public class PromptGeneratorComprehensiveTests : IDisposable
 
     public void Dispose()
     {
-        _generator?.Dispose();
+        // PromptGenerator doesn't implement IDisposable
+        _generator = null;
     }
 }
 

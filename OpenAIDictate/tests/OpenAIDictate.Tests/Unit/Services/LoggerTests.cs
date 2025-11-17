@@ -40,7 +40,7 @@ public class LoggerTests
         var exception = new InvalidOperationException("Test exception");
 
         // Act & Assert
-        var act = () => Logger.LogError("Test error", exception);
+        var act = () => Logger.LogError($"Test error: {exception.Message}");
         act.Should().NotThrow();
     }
 }

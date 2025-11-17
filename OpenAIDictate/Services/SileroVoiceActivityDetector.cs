@@ -147,9 +147,9 @@ public sealed class SileroVoiceActivityDetector : IDisposable
             Array.Copy(_context, inputBuffer, contextSize);
             chunk.CopyTo(inputBuffer.AsSpan(contextSize));
 
-            using var inputTensor = new DenseTensor<float>(inputBuffer, new[] { 1, inputLength });
-            using var stateTensor = new DenseTensor<float>(_state, new[] { 2, 1, HiddenStateSize });
-            using var srTensor = new DenseTensor<long>(new[] { (long)sampleRate }, new[] { 1 });
+            var inputTensor = new DenseTensor<float>(inputBuffer, new[] { 1, inputLength });
+            var stateTensor = new DenseTensor<float>(_state, new[] { 2, 1, HiddenStateSize });
+            var srTensor = new DenseTensor<long>(new[] { (long)sampleRate }, new[] { 1 });
 
             var inputs = new List<NamedOnnxValue>
             {
@@ -163,8 +163,9 @@ public sealed class SileroVoiceActivityDetector : IDisposable
             var probabilityTensor = results[0].AsTensor<float>();
             float probability = probabilityTensor[0];
 
-            var stateOutput = results[1].AsTensor<float>();
-            stateOutput.Buffer.Span.CopyTo(_state);
+            var stateOutputTensor = results[1].AsTensor<float>();
+            var stateOutputDense = stateOutputTensor.ToDenseTensor();
+            stateOutputDense.Buffer.Span.CopyTo(_state);
 
             Array.Copy(inputBuffer, inputLength - contextSize, _context, 0, contextSize);
 

@@ -62,7 +62,9 @@ public static class ServiceCollectionExtensions
             var apiKey = ConfigService.GetApiKey(config);
 
             if (string.IsNullOrWhiteSpace(apiKey))
+            {
                 throw new InvalidOperationException("API key not configured");
+            }
 
             return new TranscriptionService(config, apiKey, logger, metrics, preprocessor);
         });
@@ -74,7 +76,9 @@ public static class ServiceCollectionExtensions
             var apiKey = ConfigService.GetApiKey(config);
             
             if (string.IsNullOrWhiteSpace(apiKey))
+            {
                 throw new InvalidOperationException("API key not configured");
+            }
 
             return new PromptGenerator(apiKey, config, logger);
         });

@@ -100,7 +100,9 @@ public static class TextInjector
             }
 
             if (!clipboardSet)
+            {
                 return;
+            }
 
             // 3. Small delay to ensure clipboard is set
             await Task.Delay(30);

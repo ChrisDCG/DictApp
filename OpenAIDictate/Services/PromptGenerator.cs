@@ -38,7 +38,9 @@ public class PromptGenerator
     public async Task<string> GenerateFictitiousPromptAsync(string instruction)
     {
         if (string.IsNullOrWhiteSpace(instruction))
+        {
             return string.Empty;
+        }
 
         // Check cache first
         lock (_cacheLock)
@@ -97,7 +99,9 @@ public class PromptGenerator
                 .GetString();
 
             if (string.IsNullOrWhiteSpace(generatedPrompt))
+            {
                 return string.Empty;
+            }
 
             // Trim to ~224 tokens (Whisper's limit for prompt consideration)
             // Rough estimate: 224 tokens ≈ 1000 characters
@@ -187,13 +191,19 @@ public class PromptGenerator
                            .ToList();
 
         if (terms.Count == 0)
+        {
             return string.Empty;
+        }
 
         if (terms.Count == 1)
+        {
             return $"Wichtiger Begriff: {terms[0]}.";
+        }
 
         if (terms.Count == 2)
+        {
             return $"{terms[0]} und {terms[1]}.";
+        }
 
         // For multiple terms, create a natural sentence
         string lastTerm = terms.Last();

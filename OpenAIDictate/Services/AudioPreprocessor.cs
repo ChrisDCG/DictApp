@@ -99,7 +99,7 @@ public class AudioPreprocessor
 
             output.Position = 0;
 
-            Logger.LogInfo("Preprocessing complete. Original samples: {Original}, Processed samples: {Processed}", samples.Count, processed.Length);
+            Logger.LogInfo($"Preprocessing complete. Original samples: {samples.Count}, Processed samples: {processed.Length}");
 
             return output;
         }

@@ -66,7 +66,8 @@ public class PromptGeneratorTests : IDisposable
 
     public void Dispose()
     {
-        _generator?.Dispose();
+        // PromptGenerator doesn't implement IDisposable
+        _generator = null;
     }
 }
 

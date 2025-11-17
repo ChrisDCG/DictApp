@@ -268,7 +268,9 @@ public class AppTrayContext : ApplicationContext
     private async Task StopRecordingAndTranscribeAsync()
     {
         if (_currentState != AppState.Recording || _audioRecorder == null)
+        {
             return;
+        }
 
         try
         {
@@ -320,7 +322,9 @@ public class AppTrayContext : ApplicationContext
     {
         // Non-blocking check - if semaphore is busy, skip this update (next tick will catch up)
         if (!_stateSemaphore.Wait(0))
+        {
             return;
+        }
 
         try
         {
@@ -439,7 +443,9 @@ public class AppTrayContext : ApplicationContext
     private void UpdateTrayText()
     {
         if (!_stateSemaphore.Wait(0))
-            return; // Skip if busy
+        {
+            return;
+        } // Skip if busy
 
         try
         {

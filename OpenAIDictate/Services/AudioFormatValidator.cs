@@ -18,13 +18,19 @@ public static class AudioFormatValidator
     public static void Validate(Stream audioStream)
     {
         if (audioStream == null)
+        {
             throw new ArgumentNullException(nameof(audioStream));
+        }
 
         if (!audioStream.CanSeek)
+        {
             throw new InvalidOperationException("Audio stream must support seeking for validation.");
+        }
 
         if (audioStream.Length < 44)
+        {
             throw new InvalidOperationException("Audio stream is too short to contain a valid WAV header.");
+        }
 
         long originalPosition = audioStream.Position;
 

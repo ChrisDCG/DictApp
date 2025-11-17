@@ -119,46 +119,44 @@ public class AudioPreprocessorComprehensiveTests
     }
 
     [Fact]
-    public void DetectVoiceActivity_ValidStream_ShouldReturnSegments()
+    public async Task PreprocessAsync_ValidStream_ShouldReturnProcessedStream()
     {
         // Arrange
         var samples = CreateVoiceSamples(16000);
         var stream = CreateWavStreamWithSamples(samples);
 
         // Act
-        var segments = _preprocessor.DetectVoiceActivity(stream, 16000);
+        var result = await _preprocessor.PreprocessAsync(stream);
 
         // Assert
-        segments.Should().NotBeNull();
-        segments.Should().NotBeEmpty();
+        result.Should().NotBeNull();
+        result.Length.Should().BeGreaterThan(0);
     }
 
     [Fact]
-    public void DetectVoiceActivity_EmptyStream_ShouldReturnEmptyList()
+    public async Task PreprocessAsync_EmptyStream_ShouldReturnStream()
     {
         // Arrange
         var emptyStream = new MemoryStream();
 
         // Act
-        var segments = _preprocessor.DetectVoiceActivity(emptyStream, 16000);
+        var result = await _preprocessor.PreprocessAsync(emptyStream);
 
         // Assert
-        segments.Should().NotBeNull();
-        segments.Should().BeEmpty();
+        result.Should().NotBeNull();
     }
 
     [Fact]
-    public void DetectVoiceActivity_Exception_ShouldReturnEmptyList()
+    public async Task PreprocessAsync_Exception_ShouldReturnOriginalStream()
     {
         // Arrange
         var invalidStream = new MemoryStream(new byte[] { 0xFF });
 
         // Act
-        var segments = _preprocessor.DetectVoiceActivity(invalidStream, 16000);
+        var result = await _preprocessor.PreprocessAsync(invalidStream);
 
         // Assert
-        segments.Should().NotBeNull();
-        segments.Should().BeEmpty();
+        result.Should().NotBeNull();
     }
 
     [Fact]

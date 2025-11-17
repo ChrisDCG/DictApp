@@ -122,7 +122,9 @@ public class GlobalHotkeyService : IDisposable
     public void Unregister()
     {
         if (!_isRegistered)
+        {
             return;
+        }
 
         try
         {

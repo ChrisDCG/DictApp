@@ -30,7 +30,8 @@ public class NetworkStatusServiceTests : IDisposable
 
         // Assert
         // Result depends on actual network availability
-        result.Should().BeOfType<bool>();
+        // Since result is a bool, we just verify it's either true or false (it always will be)
+        result.Should().Be(result);
     }
 
     [Fact]

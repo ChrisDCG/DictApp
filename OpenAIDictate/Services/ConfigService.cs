@@ -99,7 +99,9 @@ public class ConfigService
     public static void SetApiKey(AppConfig config, string apiKey)
     {
         if (string.IsNullOrWhiteSpace(apiKey))
+        {
             throw new ArgumentException("API key cannot be null or empty", nameof(apiKey));
+        }
 
         config.ApiKeyEncrypted = SecretStore.Encrypt(apiKey);
         Save(config);

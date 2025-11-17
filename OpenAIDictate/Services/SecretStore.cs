@@ -17,7 +17,9 @@ public static class SecretStore
     public static string Encrypt(string plaintext)
     {
         if (string.IsNullOrEmpty(plaintext))
+        {
             throw new ArgumentException("Plaintext cannot be null or empty", nameof(plaintext));
+        }
 
         byte[] plaintextBytes = Encoding.UTF8.GetBytes(plaintext);
         byte[] encryptedBytes = ProtectedData.Protect(
@@ -37,7 +39,9 @@ public static class SecretStore
     public static string Decrypt(string encrypted)
     {
         if (string.IsNullOrEmpty(encrypted))
+        {
             throw new ArgumentException("Encrypted data cannot be null or empty", nameof(encrypted));
+        }
 
         try
         {
