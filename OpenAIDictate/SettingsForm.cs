@@ -37,10 +37,11 @@ public class SettingsForm : Form
     private Button? _btnCancel;
     private Label? _lblStatus;
     private ToolTip? _toolTip;
-    private const int LabelColumnLeft = 24;
-    private const int LabelColumnWidth = 220;
-    private const int FieldColumnLeft = LabelColumnLeft + LabelColumnWidth + 16;
+    private const int LabelColumnLeft = 32;
+    private const int LabelColumnWidth = 240;
+    private const int FieldColumnLeft = LabelColumnLeft + LabelColumnWidth + 18;
     private const int FieldColumnWidth = 360;
+    private const int SectionWidth = FieldColumnLeft + FieldColumnWidth - LabelColumnLeft;
     private bool _cachedDiarizedOutputPreference;
     private bool _cachedLogProbabilitiesPreference;
     private bool _suppressDiarizedCheckedEvent;
@@ -180,9 +181,9 @@ public class SettingsForm : Form
         tab.BackColor = Color.White;
         tab.Padding = new Padding(24, 24, 24, 24);
         tab.AutoScroll = true;
-        int yPos = 20;
+        int yPos = 10;
 
-        // Model Selection
+        AddSectionHeader(tab, ref yPos, "Modell & Erkennungsleistung", "Balancieren Sie Geschwindigkeit und Genauigkeit abhängig vom Einsatzzweck.");
         var lblModel = new Label
         {
             Text = SR.ModelLabel,
@@ -213,7 +214,7 @@ public class SettingsForm : Form
         tab.Controls.Add(_cmbModel);
         yPos += 40;
 
-        // Language
+        AddSectionHeader(tab, ref yPos, "Transkriptionssprache", "Legt fest, wie die KI zuhört und welche Grammatik bevorzugt wird.");
         var lblLanguage = new Label
         {
             Text = SR.TranscriptionLanguageLabel,
@@ -245,6 +246,20 @@ public class SettingsForm : Form
         tab.Controls.Add(_cmbLanguage);
         yPos += 40;
 
+        var lblLanguageHelp = new Label
+        {
+            Text = "„Auto“ erkennt automatisch, feste Werte stärken Fachvokabular in einer Sprache.",
+            Left = FieldColumnLeft,
+            Top = yPos - 16,
+            Width = FieldColumnWidth,
+            ForeColor = Color.Gray,
+            Font = new Font("Segoe UI", 8.25F, FontStyle.Regular)
+        };
+        tab.Controls.Add(lblLanguageHelp);
+
+        yPos += 20;
+
+        AddSectionHeader(tab, ref yPos, "App-Sprache", "Beeinflusst Menüs, Hinweise und Dialoge – unabhängig von der Transkription.");
         // UI Language
         var lblUiLanguage = new Label
         {
@@ -276,15 +291,16 @@ public class SettingsForm : Form
         var lblUiLanguageHelp = new Label
         {
             Text = SR.UiLanguageHelp,
-            Left = 180,
+            Left = FieldColumnLeft,
             Top = yPos + 25,
-            Width = 350,
+            Width = FieldColumnWidth,
             ForeColor = Color.Gray,
             Font = new Font("Segoe UI", 8.25F, FontStyle.Regular)
         };
         tab.Controls.Add(lblUiLanguageHelp);
         yPos += 60;
 
+        AddSectionHeader(tab, ref yPos, "Hotkey & Aufnahme", "Der Hotkey startet/stopp die Aufnahme global – ideal für diktieren über Apps hinweg.");
         // Hotkey
         var lblHotkey = new Label
         {
@@ -325,17 +341,17 @@ public class SettingsForm : Form
         var lblMaxRecording = new Label
         {
             Text = SR.MaxRecordingLabel,
-            Left = 20,
+            Left = LabelColumnLeft,
             Top = yPos,
-            Width = 150,
+            Width = LabelColumnWidth,
             Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(lblMaxRecording);
 
         _numMaxRecording = new NumericUpDown
         {
-            Left = 180,
-            Top = yPos,
+            Left = FieldColumnLeft,
+            Top = yPos - 3,
             Width = 100,
             Minimum = 1,
             Maximum = 30,
@@ -345,24 +361,25 @@ public class SettingsForm : Form
         tab.Controls.Add(_numMaxRecording);
         yPos += 40;
 
-        // Glossary
+        AddSectionHeader(tab, ref yPos, "Benutzerdefiniertes Glossar", "Eigennamen, Produktbezeichnungen oder juristische Fachbegriffe durch Komma trennen.");
         var lblGlossary = new Label
         {
             Text = SR.GlossaryLabel,
-            Left = 20,
+            Left = LabelColumnLeft,
             Top = yPos,
-            Width = 640,
-            Height = 40,
-            Font = new Font("Segoe UI", 9F, FontStyle.Regular)
+            Width = SectionWidth,
+            Height = 32,
+            Font = new Font("Segoe UI", 9F, FontStyle.Regular),
+            ForeColor = Color.Gray
         };
         tab.Controls.Add(lblGlossary);
-        yPos += 45;
+        yPos += 38;
 
         _txtGlossary = new TextBox
         {
-            Left = 20,
+            Left = LabelColumnLeft,
             Top = yPos,
-            Width = 640,
+            Width = SectionWidth,
             Height = 100,
             Multiline = true,
             ScrollBars = ScrollBars.Vertical,
@@ -371,6 +388,38 @@ public class SettingsForm : Form
         };
         SetPlaceholderText(_txtGlossary, SR.GlossaryPlaceholder);
         tab.Controls.Add(_txtGlossary);
+    }
+
+    private void AddSectionHeader(Control parent, ref int yPos, string title, string? subtitle = null)
+    {
+        yPos += yPos == 10 ? 0 : 12;
+
+        var titleLabel = new Label
+        {
+            Text = title,
+            Left = LabelColumnLeft,
+            Top = yPos,
+            Width = SectionWidth,
+            Font = new Font("Segoe UI Semibold", 10F, FontStyle.Regular),
+            ForeColor = Color.FromArgb(32, 32, 32)
+        };
+        parent.Controls.Add(titleLabel);
+        yPos += 28;
+
+        if (!string.IsNullOrWhiteSpace(subtitle))
+        {
+            var subtitleLabel = new Label
+            {
+                Text = subtitle,
+                Left = LabelColumnLeft,
+                Top = yPos - 6,
+                Width = SectionWidth,
+                ForeColor = Color.Gray,
+                Font = new Font("Segoe UI", 8.5F, FontStyle.Regular)
+            };
+            parent.Controls.Add(subtitleLabel);
+            yPos += 24;
+        }
     }
 
     private void CreateAdvancedTab(TabPage tab)

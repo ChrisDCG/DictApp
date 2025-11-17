@@ -1,5 +1,7 @@
 using System.ComponentModel;
+using System.Drawing;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -38,6 +40,7 @@ public class AppTrayContext : ApplicationContext
     private System.Windows.Forms.Timer? _networkTimer;
     private bool _isOffline;
     private readonly CursorPulseOverlay _cursorOverlay = new();
+    private NativeWindowHelpers.WindowFocusSnapshot _focusSnapshot = NativeWindowHelpers.WindowFocusSnapshot.Empty;
 
     /// <summary>
     /// Constructor with Dependency Injection support
@@ -96,9 +99,12 @@ public class AppTrayContext : ApplicationContext
         }
         catch (Exception ex)
         {
-            ShowError(string.Format(CultureInfo.CurrentCulture, SR.HotkeyRegistrationError, ex.Message));
-            Application.Exit();
-            return;
+            if (!TryRegisterFallbackHotkey(ex))
+            {
+                ShowError(string.Format(CultureInfo.CurrentCulture, SR.HotkeyRegistrationError, ex.Message));
+                Application.Exit();
+                return;
+            }
         }
 
         // Initialize recording duration timer (updates tray tooltip every second)
@@ -187,14 +193,8 @@ public class AppTrayContext : ApplicationContext
         switch (currentState)
         {
             case AppState.Idle:
-                if (await CheckConnectivityAsync(notify: false))
-                {
-                    await StartRecordingAsync();
-                }
-                else
-                {
-                    ShowWarning(SR.OfflineStartWarning);
-                }
+                await StartRecordingAsync();
+                _ = CheckConnectivityAfterStartAsync();
                 break;
 
             case AppState.Recording:
@@ -216,7 +216,8 @@ public class AppTrayContext : ApplicationContext
         try
         {
             SetState(AppState.Recording);
-            _cursorOverlay.ShowAtCaret();
+            _focusSnapshot = NativeWindowHelpers.CaptureFocusState();
+            _cursorOverlay.ShowOverlay(CursorPulseOverlay.OverlayMode.Recording);
             AudioCueService.PlayStartCue();
 
             // Create AudioRecorder if needed (transient service)
@@ -303,10 +304,10 @@ public class AppTrayContext : ApplicationContext
             string transcription = await _transcriptionService.TranscribeAsync(audioStream);
 
             // Inject text at cursor
-            _cursorOverlay.UpdatePosition();
+            _cursorOverlay.TransitionToMode(CursorPulseOverlay.OverlayMode.Transcribing);
+            NativeWindowHelpers.RestoreFocusState(_focusSnapshot);
             await TextInjector.InjectAsync(transcription);
-
-            ShowInfo(string.Format(CultureInfo.CurrentCulture, SR.TranscriptionComplete, transcription.Length));
+            _focusSnapshot = NativeWindowHelpers.WindowFocusSnapshot.Empty;
         }
         catch (Exception ex)
         {
@@ -319,6 +320,23 @@ public class AppTrayContext : ApplicationContext
             AudioCueService.PlayStopCue();
             _cursorOverlay.HideOverlay();
             SetState(AppState.Idle);
+            if (_focusSnapshot.IsValid)
+            {
+                NativeWindowHelpers.RestoreFocusState(_focusSnapshot);
+                _focusSnapshot = NativeWindowHelpers.WindowFocusSnapshot.Empty;
+            }
+        }
+    }
+
+    private async Task CheckConnectivityAfterStartAsync()
+    {
+        try
+        {
+            await CheckConnectivityAsync(notify: false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Connectivity check after start failed: {Message}", ex.Message);
         }
     }
 
@@ -653,6 +671,128 @@ public class AppTrayContext : ApplicationContext
             }
 
             base.WndProc(ref m);
+        }
+    }
+
+    private bool TryRegisterFallbackHotkey(Exception originalException)
+    {
+        string currentGesture = string.IsNullOrWhiteSpace(_config.HotkeyGesture) ? "F5" : _config.HotkeyGesture;
+        foreach (string candidate in HotkeyParser.GetSuggestions())
+        {
+            if (string.Equals(candidate, currentGesture, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            try
+            {
+                _hotkeyService.Register(candidate);
+                var (modifiers, virtualKey) = HotkeyParser.Parse(candidate);
+                _config.HotkeyGesture = HotkeyParser.Format(modifiers, virtualKey);
+                _config.HotkeyModifiers = (int)modifiers;
+                _config.HotkeyVirtualKey = (int)virtualKey;
+                ConfigService.Save(_config);
+
+                ShowInfo(string.Format(CultureInfo.CurrentCulture, SR.HotkeyUpdatedInfo, _config.HotkeyGesture));
+                _logger.LogWarning(originalException, "Hotkey {Original} unavailable. Switched to {Fallback}.", currentGesture, candidate);
+                return true;
+            }
+            catch
+            {
+                continue;
+            }
+        }
+
+        _logger.LogError(originalException, "Failed to register any hotkey (current: {Gesture})", currentGesture);
+        return false;
+    }
+
+    private static class NativeWindowHelpers
+    {
+        private const int SW_RESTORE = 9;
+        private const int SW_SHOWMINIMIZED = 2;
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("user32.dll")]
+        private static extern bool BringWindowToTop(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool IsWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
+
+        internal static WindowFocusSnapshot CaptureFocusState()
+        {
+            IntPtr handle = GetForegroundWindow();
+            if (handle == IntPtr.Zero || !IsWindow(handle))
+            {
+                return WindowFocusSnapshot.Empty;
+            }
+
+            var placement = new WINDOWPLACEMENT();
+            placement.Length = Marshal.SizeOf<WINDOWPLACEMENT>();
+            if (!GetWindowPlacement(handle, ref placement))
+            {
+                placement.ShowCmd = SW_RESTORE;
+            }
+
+            return new WindowFocusSnapshot(handle, placement);
+        }
+
+        internal static void RestoreFocusState(WindowFocusSnapshot snapshot)
+        {
+            if (!snapshot.IsValid || !IsWindow(snapshot.Handle))
+            {
+                return;
+            }
+
+            int showCmd = snapshot.Placement.ShowCmd == SW_SHOWMINIMIZED ? SW_RESTORE : snapshot.Placement.ShowCmd;
+            ShowWindowAsync(snapshot.Handle, showCmd);
+            BringWindowToTop(snapshot.Handle);
+            SetForegroundWindow(snapshot.Handle);
+        }
+
+        internal readonly struct WindowFocusSnapshot
+        {
+            public static WindowFocusSnapshot Empty => new(IntPtr.Zero, default, false);
+
+            public WindowFocusSnapshot(IntPtr handle, WINDOWPLACEMENT placement)
+            {
+                Handle = handle;
+                Placement = placement;
+                IsValid = handle != IntPtr.Zero;
+            }
+
+            private WindowFocusSnapshot(IntPtr handle, WINDOWPLACEMENT placement, bool valid)
+            {
+                Handle = handle;
+                Placement = placement;
+                IsValid = valid;
+            }
+
+            public IntPtr Handle { get; }
+            public WINDOWPLACEMENT Placement { get; }
+            public bool IsValid { get; }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct WINDOWPLACEMENT
+        {
+            public int Length;
+            public int Flags;
+            public int ShowCmd;
+            public Point PtMinPosition;
+            public Point PtMaxPosition;
+            public Rectangle RcNormalPosition;
         }
     }
 }
