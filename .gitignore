@@ -110,4 +110,6 @@ TestResults/
 
 # Tooling
 .editorconfig.cache
-
+.claude/
+.dotnet/
+nul

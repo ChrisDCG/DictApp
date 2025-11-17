@@ -50,7 +50,7 @@ public static class ServiceCollectionExtensions
         // Register services
         services.AddSingleton<NetworkStatusService>();
         services.AddSingleton<ConfigService>();
-        services.AddSingleton(sp => sp.GetRequiredService<IOptions<AppConfig>>().Value);
+        services.AddSingleton<AppConfig>(sp => sp.GetRequiredService<IOptions<AppConfig>>().Value);
 
         // Register factory-based services (created per request)
         services.AddTransient<AudioRecorder>(sp =>

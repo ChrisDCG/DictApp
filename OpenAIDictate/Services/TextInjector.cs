@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace OpenAIDictate.Services;
 
@@ -43,6 +44,7 @@ public static class TextInjector
     // Key event flags
     private const uint KEYEVENTF_KEYDOWN = 0x0000;
     private const uint KEYEVENTF_KEYUP = 0x0002;
+    private const uint KEYEVENTF_UNICODE = 0x0004;
 
     // Virtual key codes
     private const ushort VK_CONTROL = 0x11;
@@ -69,6 +71,12 @@ public static class TextInjector
 
         try
         {
+            if (TrySendUnicodeText(text))
+            {
+                Logger.LogInfo("Text injection completed via Unicode SendInput");
+                return;
+            }
+
             // 1. Backup current clipboard content
             IDataObject? originalClipboard = null;
             try
@@ -168,6 +176,34 @@ public static class TextInjector
     }
 
     /// <summary>
+    /// Sends Unicode text directly without clipboard dependency.
+    /// </summary>
+    private static bool TrySendUnicodeText(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return false;
+        }
+
+        var inputs = new INPUT[text.Length * 2];
+        int index = 0;
+        foreach (char ch in text)
+        {
+            inputs[index++] = CreateUnicodeInput(ch, true);
+            inputs[index++] = CreateUnicodeInput(ch, false);
+        }
+
+        uint sent = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+        if (sent != inputs.Length)
+        {
+            Logger.LogWarning($"Unicode SendInput failed. Expected {inputs.Length}, sent {sent}. Falling back to clipboard.");
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
     /// Simulates Ctrl+V keystroke using SendInput
     /// </summary>
     private static bool SendCtrlV()
@@ -213,6 +249,25 @@ public static class TextInjector
                     wVk = virtualKey,
                     wScan = 0,
                     dwFlags = flags,
+                    time = 0,
+                    dwExtraInfo = UIntPtr.Zero
+                }
+            }
+        };
+    }
+
+    private static INPUT CreateUnicodeInput(char character, bool keyDown)
+    {
+        return new INPUT
+        {
+            type = INPUT_KEYBOARD,
+            union = new INPUTUNION
+            {
+                ki = new KEYBDINPUT
+                {
+                    wVk = 0,
+                    wScan = character,
+                    dwFlags = KEYEVENTF_UNICODE | (keyDown ? KEYEVENTF_KEYDOWN : KEYEVENTF_KEYUP),
                     time = 0,
                     dwExtraInfo = UIntPtr.Zero
                 }

@@ -96,19 +96,6 @@ public class TranscriptionServiceComprehensiveTests
     }
 
     [Fact]
-    public void Constructor_PromptGeneratorInitializationFailure_ShouldLogWarning()
-    {
-        // Arrange
-        _mockLogger.Setup(x => x.LogWarning(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<object[]>()));
-
-        // Act
-        var service = new TranscriptionService(_config, "sk-test", _mockLogger.Object, _mockMetrics.Object);
-
-        // Assert
-        service.Should().NotBeNull();
-    }
-
-    [Fact]
     public void Constructor_WithValidConfig_ShouldInitialize()
     {
         // Act

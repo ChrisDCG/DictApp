@@ -37,8 +37,9 @@ public class SettingsForm : Form
     private Button? _btnCancel;
     private Label? _lblStatus;
     private ToolTip? _toolTip;
-    private const int LabelColumnLeft = 20;
-    private const int FieldColumnLeft = 200;
+    private const int LabelColumnLeft = 24;
+    private const int LabelColumnWidth = 220;
+    private const int FieldColumnLeft = LabelColumnLeft + LabelColumnWidth + 16;
     private const int FieldColumnWidth = 360;
     private bool _cachedDiarizedOutputPreference;
     private bool _cachedLogProbabilitiesPreference;
@@ -59,6 +60,7 @@ public class SettingsForm : Form
     private void InitializeComponent()
     {
         Text = SR.SettingsDialogTitle;
+        Icon = Branding.AppIcon;
         AutoScaleMode = AutoScaleMode.Dpi;
         Width = 720;
         Height = 640;
@@ -176,24 +178,26 @@ public class SettingsForm : Form
     private void CreateGeneralTab(TabPage tab)
     {
         tab.BackColor = Color.White;
+        tab.Padding = new Padding(24, 24, 24, 24);
+        tab.AutoScroll = true;
         int yPos = 20;
 
         // Model Selection
         var lblModel = new Label
         {
             Text = SR.ModelLabel,
-            Left = 20,
+            Left = LabelColumnLeft,
             Top = yPos,
-            Width = 150,
+            Width = LabelColumnWidth,
             Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(lblModel);
 
         _cmbModel = new ComboBox
         {
-            Left = 180,
-            Top = yPos,
-            Width = 350,
+            Left = FieldColumnLeft,
+            Top = yPos - 3,
+            Width = FieldColumnWidth,
             DropDownStyle = ComboBoxStyle.DropDownList,
             FlatStyle = FlatStyle.Flat,
             Font = new Font("Segoe UI", 9F, FontStyle.Regular)
@@ -213,18 +217,18 @@ public class SettingsForm : Form
         var lblLanguage = new Label
         {
             Text = SR.TranscriptionLanguageLabel,
-            Left = 20,
+            Left = LabelColumnLeft,
             Top = yPos,
-            Width = 150,
+            Width = LabelColumnWidth,
             Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(lblLanguage);
 
         _cmbLanguage = new ComboBox
         {
-            Left = 180,
+            Left = FieldColumnLeft,
             Top = yPos - 3,
-            Width = 200,
+            Width = FieldColumnWidth,
             DropDownStyle = ComboBoxStyle.DropDownList,
             FlatStyle = FlatStyle.Flat,
             Font = new Font("Segoe UI", 9F, FontStyle.Regular)
@@ -245,18 +249,18 @@ public class SettingsForm : Form
         var lblUiLanguage = new Label
         {
             Text = SR.UiLanguageLabel,
-            Left = 20,
+            Left = LabelColumnLeft,
             Top = yPos,
-            Width = 150,
+            Width = LabelColumnWidth,
             Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(lblUiLanguage);
 
         _cmbUiLanguage = new ComboBox
         {
-            Left = 180,
+            Left = FieldColumnLeft,
             Top = yPos - 3,
-            Width = 200,
+            Width = FieldColumnWidth,
             DropDownStyle = ComboBoxStyle.DropDownList,
             FlatStyle = FlatStyle.Flat,
             Font = new Font("Segoe UI", 9F, FontStyle.Regular)
@@ -285,18 +289,18 @@ public class SettingsForm : Form
         var lblHotkey = new Label
         {
             Text = SR.HotkeyLabel,
-            Left = 20,
+            Left = LabelColumnLeft,
             Top = yPos,
-            Width = 150,
+            Width = LabelColumnWidth,
             Font = new Font("Segoe UI", 9F, FontStyle.Regular)
         };
         tab.Controls.Add(lblHotkey);
 
         _cmbHotkey = new ComboBox
         {
-            Left = 180,
+            Left = FieldColumnLeft,
             Top = yPos - 3,
-            Width = 200,
+            Width = FieldColumnWidth,
             DropDownStyle = ComboBoxStyle.DropDown,
             AutoCompleteMode = AutoCompleteMode.SuggestAppend,
             AutoCompleteSource = AutoCompleteSource.ListItems,

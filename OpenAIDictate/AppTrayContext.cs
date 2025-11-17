@@ -594,6 +594,7 @@ public class AppTrayContext : ApplicationContext
         _messageWindow?.Dispose();
         _cancellationTokenSource.Dispose();
         _stateSemaphore.Dispose();
+        _cursorOverlay.HideOverlay();
 
         Application.Exit();
     }
@@ -615,6 +616,7 @@ public class AppTrayContext : ApplicationContext
             _connectivitySemaphore.Dispose();
             _stateSemaphore.Dispose();
             _cancellationTokenSource.Dispose();
+            _cursorOverlay.Dispose();
         }
 
         base.Dispose(disposing);
@@ -672,6 +674,7 @@ public class ApiKeyInputForm : Form
         StartPosition = FormStartPosition.CenterScreen;
         MaximizeBox = false;
         MinimizeBox = false;
+        Icon = Branding.AppIcon;
 
         var label = new Label
         {
