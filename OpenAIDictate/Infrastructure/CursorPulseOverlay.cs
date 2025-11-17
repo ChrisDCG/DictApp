@@ -4,15 +4,16 @@ using System.Windows.Forms;
 namespace OpenAIDictate.Infrastructure;
 
 /// <summary>
-/// Displays a subtle pulsing indicator near the caret while recording/transcribing.
+/// Displays a continuous caret overlay with MacWhisper-style animation.
 /// </summary>
 public sealed class CursorPulseOverlay : Form
 {
     private readonly System.Windows.Forms.Timer _animationTimer;
     private readonly System.Windows.Forms.Timer _positionTimer;
     private float _phase;
-    private const int OverlaySize = 56;
     private OverlayMode _mode = OverlayMode.Recording;
+
+    private const int OverlaySize = 58;
 
     public CursorPulseOverlay()
     {
@@ -30,13 +31,13 @@ public sealed class CursorPulseOverlay : Form
 
         _animationTimer = new System.Windows.Forms.Timer
         {
-            Interval = 30
+            Interval = 20
         };
         _animationTimer.Tick += (_, _) => Animate();
 
         _positionTimer = new System.Windows.Forms.Timer
         {
-            Interval = 120
+            Interval = 110
         };
         _positionTimer.Tick += (_, _) => PositionOverlay();
     }
@@ -58,44 +59,6 @@ public sealed class CursorPulseOverlay : Form
         }
     }
 
-    private void Animate()
-    {
-        float speed = _mode == OverlayMode.Recording ? 0.2f : 0.08f;
-        _phase += speed;
-        if (_phase > MathF.PI * 2)
-        {
-            _phase -= MathF.PI * 2;
-        }
-
-        float baseOpacity = _mode == OverlayMode.Recording ? 0.8f : 0.55f;
-        float amplitude = _mode == OverlayMode.Recording ? 0.35f : 0.2f;
-        float opacity = baseOpacity + (amplitude * (float)Math.Sin(_phase));
-        Opacity = opacity;
-        Invalidate();
-    }
-
-    protected override void OnPaint(PaintEventArgs e)
-    {
-        base.OnPaint(e);
-
-        e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-        float radius = (OverlaySize / 2f) - 4f;
-        float ringWidth = (_mode == OverlayMode.Recording ? 7f : 4f) + (2f * (float)(Math.Sin(_phase * 1.5f) + 1));
-        var center = new PointF(OverlaySize / 2f, OverlaySize / 2f);
-
-        Color edgeColor = _mode == OverlayMode.Recording ? Color.FromArgb(150, 0, 196, 255) : Color.FromArgb(90, 0, 196, 255);
-        using var outerPen = new Pen(edgeColor, ringWidth);
-        e.Graphics.DrawEllipse(outerPen, center.X - radius, center.Y - radius, radius * 2, radius * 2);
-
-        using var fillBrush = new SolidBrush(_mode == OverlayMode.Recording ? Color.FromArgb(210, 0, 120, 215) : Color.FromArgb(160, 0, 140, 220));
-        float innerRadius = radius - 8;
-        e.Graphics.FillEllipse(fillBrush, center.X - innerRadius, center.Y - innerRadius, innerRadius * 2, innerRadius * 2);
-
-        using var highlightBrush = new SolidBrush(Color.FromArgb(220, 255, 255, 255));
-        float highlightRadius = innerRadius / 2.5f;
-        e.Graphics.FillEllipse(highlightBrush, center.X - highlightRadius, center.Y - highlightRadius, highlightRadius * 2, highlightRadius * 2);
-    }
-
     public void ShowOverlay(OverlayMode mode)
     {
         RunOnUiThread(() =>
@@ -106,7 +69,7 @@ public sealed class CursorPulseOverlay : Form
             {
                 Show();
             }
-            Opacity = 0.8;
+
             _positionTimer.Start();
             _animationTimer.Start();
         });
@@ -131,10 +94,54 @@ public sealed class CursorPulseOverlay : Form
         });
     }
 
+    private void Animate()
+    {
+        float speed = _mode == OverlayMode.Recording ? 0.22f : 0.09f;
+        _phase += speed;
+        if (_phase > MathF.PI * 2)
+        {
+            _phase -= MathF.PI * 2;
+        }
+
+        float baseOpacity = _mode == OverlayMode.Recording ? 0.82f : 0.60f;
+        float amplitude = _mode == OverlayMode.Recording ? 0.35f : 0.18f;
+        Opacity = baseOpacity + (amplitude * (float)Math.Sin(_phase));
+        Invalidate();
+    }
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        base.OnPaint(e);
+        e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+        var center = new PointF(OverlaySize / 2f, OverlaySize / 2f);
+        float radius = (OverlaySize / 2f) - 4f;
+        float ringWidth = (_mode == OverlayMode.Recording ? 7.5f : 4.5f) + (1.5f * (float)Math.Sin(_phase * 1.5f));
+
+        Color edgeColor = _mode == OverlayMode.Recording
+            ? Color.FromArgb(155, 0, 196, 255)
+            : Color.FromArgb(100, 0, 168, 255);
+
+        using var ringPen = new Pen(edgeColor, ringWidth);
+        e.Graphics.DrawEllipse(ringPen, center.X - radius, center.Y - radius, radius * 2, radius * 2);
+
+        float innerRadius = radius - 9;
+        Color fillColor = _mode == OverlayMode.Recording
+            ? Color.FromArgb(215, 0, 120, 215)
+            : Color.FromArgb(170, 0, 140, 220);
+
+        using var fillBrush = new SolidBrush(fillColor);
+        e.Graphics.FillEllipse(fillBrush, center.X - innerRadius, center.Y - innerRadius, innerRadius * 2, innerRadius * 2);
+
+        float highlightRadius = innerRadius / 2.8f;
+        using var highlightBrush = new SolidBrush(Color.FromArgb(230, 255, 255, 255));
+        e.Graphics.FillEllipse(highlightBrush, center.X - highlightRadius, center.Y - highlightRadius, highlightRadius * 2, highlightRadius * 2);
+    }
+
     private void PositionOverlay()
     {
         Point location = GetTargetPosition();
-        Location = new Point(location.X - Width / 2, location.Y - Height / 2 - 18);
+        Location = new Point(location.X - Width / 2, location.Y - Height / 2 - 12);
     }
 
     private static Point GetTargetPosition()
@@ -158,7 +165,6 @@ public sealed class CursorPulseOverlay : Form
             }
             catch (ObjectDisposedException)
             {
-                // Ignore - shutting down
             }
         }
         else

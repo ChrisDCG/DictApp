@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -213,31 +214,24 @@ public class TranscriptionService
     {
         var promptParts = new List<string>();
 
-        // Add custom glossary if specified (for proper nouns, legal terms, etc.)
         if (!string.IsNullOrWhiteSpace(_config.Glossary))
         {
-            // OpenAI best practice: Use natural sentences instead of just lists
-            promptParts.Add($"Fachbegriffe: {_config.Glossary}.");
+            promptParts.Add($"Fachbegriffe oder feste Begriffe: {_config.Glossary}.");
         }
 
-        // Add example sentence in desired style
-        // OpenAI Cookbook: "Long prompts may be more reliable at steering Whisper"
-        if (_config.Language == "de")
+        promptParts.Add("Transkribiere in vollstaendigen Saetzen mit konsistenter Zeichensetzung, korrekter Grossschreibung und Ziffern fuer Zahlen.");
+
+        string languageSample = _config.Language switch
         {
-            promptParts.Add(
-                "Der Bundesgerichtshof entschied über Schadensersatz gemäß §§ 280, 241 Abs. 2 BGB bezüglich der Willenserklärung im Bürgschaftsvertrag."
-            );
-        }
-        else
-        {
-            promptParts.Add(
-                "The court decided on damages according to relevant statutory provisions regarding contractual obligations."
-            );
-        }
+            "de" => "Der Bundesgerichtshof entschied ueber Schadensersatz gemaess Paragraph 280 und 241 Absatz 2 BGB im Zusammenhang mit einer Vertragsverpflichtung.",
+            "fr" => "Le tribunal a statue sur les dommages selon les dispositions legales applicables aux obligations contractuelles.",
+            "es" => "El tribunal decidio sobre los danos conforme a las disposiciones legales pertinentes en materia de obligaciones contractuales.",
+            "it" => "Il tribunale ha deciso sui danni secondo le disposizioni di legge relative alle obbligazioni contrattuali.",
+            _ => "The court decided on damages according to relevant statutory provisions regarding contractual obligations."
+        };
+        promptParts.Add(languageSample);
 
         string prompt = string.Join(" ", promptParts);
-
-        // OpenAI limits prompt to last 224 tokens
         if (prompt.Length > 1000)
         {
             prompt = prompt.Substring(prompt.Length - 1000);
@@ -245,6 +239,9 @@ public class TranscriptionService
 
         return prompt;
     }
+
+    /// <summary>
+
 
     /// <summary>
     /// Applies LLM-based post-processing for punctuation and formatting
@@ -334,9 +331,10 @@ public class TranscriptionService
             content.Add(new StringContent("auto"), "chunking_strategy");
         }
 
-        if (!string.IsNullOrWhiteSpace(_config.Language))
+        string? resolvedLanguage = ResolveRequestLanguage();
+        if (!string.IsNullOrWhiteSpace(resolvedLanguage))
         {
-            content.Add(new StringContent(_config.Language), "language");
+            content.Add(new StringContent(resolvedLanguage), "language");
         }
 
         content.Add(new StringContent("0"), "temperature");
@@ -354,6 +352,23 @@ public class TranscriptionService
         }
 
         return content;
+    }
+
+    private string? ResolveRequestLanguage()
+    {
+        if (!string.IsNullOrWhiteSpace(_config.Language))
+        {
+            return _config.Language;
+        }
+
+        try
+        {
+            return CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private string DetermineResponseFormat()
@@ -600,3 +615,5 @@ public class TranscriptionService
         }
     }
 }
+
+

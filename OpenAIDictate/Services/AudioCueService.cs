@@ -14,8 +14,8 @@ public static class AudioCueService
 
     static AudioCueService()
     {
-        StartCuePlayer = CreateTonePlayer(880, 100);
-        StopCuePlayer = CreateTonePlayer(660, 140);
+        StartCuePlayer = CreateTonePlayer(920, 70);
+        StopCuePlayer = CreateTonePlayer(540, 90);
     }
 
     public static void PlayStartCue() => Play(StartCuePlayer);

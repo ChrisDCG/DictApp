@@ -283,9 +283,11 @@ public class AppTrayContext : ApplicationContext
             _recordingTimer?.Stop();
 
             SetState(AppState.Transcribing);
+            _cursorOverlay.TransitionToMode(CursorPulseOverlay.OverlayMode.Transcribing);
 
             // Stop recording and get audio
             using MemoryStream audioStream = await _audioRecorder.StopRecordingAsync();
+            AudioCueService.PlayStopCue();
             _metrics.RecordAudioDuration(_audioRecorder.GetRecordingDuration());
 
             await CheckConnectivityAsync(notify: false);
@@ -304,7 +306,6 @@ public class AppTrayContext : ApplicationContext
             string transcription = await _transcriptionService.TranscribeAsync(audioStream);
 
             // Inject text at cursor
-            _cursorOverlay.TransitionToMode(CursorPulseOverlay.OverlayMode.Transcribing);
             NativeWindowHelpers.RestoreFocusState(_focusSnapshot);
             await TextInjector.InjectAsync(transcription);
             _focusSnapshot = NativeWindowHelpers.WindowFocusSnapshot.Empty;
@@ -317,7 +318,6 @@ public class AppTrayContext : ApplicationContext
         }
         finally
         {
-            AudioCueService.PlayStopCue();
             _cursorOverlay.HideOverlay();
             SetState(AppState.Idle);
             if (_focusSnapshot.IsValid)
