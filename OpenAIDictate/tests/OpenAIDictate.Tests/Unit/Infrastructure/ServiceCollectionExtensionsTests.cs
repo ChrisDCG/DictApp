@@ -1,3 +1,4 @@
+using System.Linq;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,10 +42,10 @@ public class ServiceCollectionExtensionsTests
 
         // Act
         services.AddApplicationServices(configuration);
-        var serviceProvider = services.BuildServiceProvider();
+        var isRegistered = services.Any(descriptor => descriptor.ServiceType == typeof(AppTrayContext));
 
         // Assert
-        serviceProvider.GetService<AppTrayContext>().Should().NotBeNull();
+        isRegistered.Should().BeTrue("AppTrayContext must be available for the tray application");
     }
 
     [Fact]

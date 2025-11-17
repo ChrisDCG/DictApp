@@ -43,9 +43,18 @@ public static class SecretStore
             throw new ArgumentException("Encrypted data cannot be null or empty", nameof(encrypted));
         }
 
+        byte[] encryptedBytes;
         try
         {
-            byte[] encryptedBytes = Convert.FromBase64String(encrypted);
+            encryptedBytes = Convert.FromBase64String(encrypted);
+        }
+        catch (FormatException ex)
+        {
+            throw new InvalidOperationException("Encrypted secret is not valid Base64.", ex);
+        }
+
+        try
+        {
             byte[] decryptedBytes = ProtectedData.Unprotect(
                 encryptedBytes,
                 optionalEntropy: null,

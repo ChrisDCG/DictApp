@@ -1,6 +1,7 @@
+using System.IO;
+using System.Text;
 using FluentAssertions;
 using Moq;
-using NAudio.Wave;
 using OpenAIDictate.Models;
 using OpenAIDictate.Services;
 using Xunit;
@@ -174,16 +175,55 @@ public class AudioPreprocessorComprehensiveTests
 
     private static MemoryStream CreateWavStreamWithSamples(float[] samples)
     {
+        const int sampleRate = 16000;
+        const short bitsPerSample = 16;
+        const short channels = 1;
+
+        byte[] pcmData = ConvertToPcm16(samples);
+
         var stream = new MemoryStream();
-        var format = new WaveFormat(16000, 16, 1);
-        
-        using (var writer = new WaveFileWriter(stream, format))
+        using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true))
         {
-            writer.WriteSamples(samples, 0, samples.Length);
+            writer.Write("RIFF".ToCharArray());
+            writer.Write(36 + pcmData.Length);
+            writer.Write("WAVE".ToCharArray());
+
+            writer.Write("fmt ".ToCharArray());
+            writer.Write(16); // Subchunk1Size for PCM
+            writer.Write((short)1); // AudioFormat PCM
+            writer.Write(channels);
+            writer.Write(sampleRate);
+            writer.Write(sampleRate * channels * bitsPerSample / 8);
+            writer.Write((short)(channels * bitsPerSample / 8));
+            writer.Write(bitsPerSample);
+
+            writer.Write("data".ToCharArray());
+            writer.Write(pcmData.Length);
+            writer.Write(pcmData);
+            writer.Flush();
         }
-        
+
         stream.Position = 0;
         return stream;
+    }
+
+    private static byte[] ConvertToPcm16(float[] samples)
+    {
+        if (samples.Length == 0)
+        {
+            return Array.Empty<byte>();
+        }
+
+        var pcm = new byte[samples.Length * sizeof(short)];
+        for (int i = 0; i < samples.Length; i++)
+        {
+            float clamped = Math.Clamp(samples[i], -1f, 1f);
+            short sampleValue = (short)(clamped * short.MaxValue);
+            pcm[i * 2] = (byte)(sampleValue & 0xFF);
+            pcm[(i * 2) + 1] = (byte)((sampleValue >> 8) & 0xFF);
+        }
+
+        return pcm;
     }
 
     private static float[] CreateVoiceSamples(int count)

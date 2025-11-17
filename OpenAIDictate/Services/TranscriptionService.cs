@@ -17,7 +17,6 @@ public class TranscriptionService
     private readonly AppConfig _config;
     private readonly string _apiKey;
     private readonly string _model;
-    private readonly PromptGenerator? _promptGenerator;
     private readonly IAppLogger _logger;
     private readonly IMetricsService _metrics;
     private readonly Random _random = new(); // Reusable Random instance for retry jitter
@@ -37,17 +36,6 @@ public class TranscriptionService
 
         _httpClient = OpenAIHttpClientFactory.Create(TimeSpan.FromMinutes(5));
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
-
-        // Initialize PromptGenerator for advanced prompting strategies
-        try
-        {
-            _promptGenerator = new PromptGenerator(_apiKey, _config, _logger);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning("Failed to initialize PromptGenerator: {Message}. Using basic prompts.", ex.Message);
-            _promptGenerator = null;
-        }
 
         _logger.LogInfo("TranscriptionService initialized with model: {Model}", _model);
     }
@@ -83,14 +71,11 @@ public class TranscriptionService
             else
             {
                 streamToUse = audioStream;
-                streamToUse.Position = 0;
             }
 
-            // Validate audio format before uploading
-            AudioFormatValidator.Validate(streamToUse);
             streamToUse.Position = 0;
-            _logger.LogInfo("Audio format validated (16kHz/16-bit PCM mono)");
-            // Check file size (OpenAI limit: 25MB)
+
+            // Check file size (OpenAI limit: 25MB) before attempting any decoding
             const long maxSizeBytes = 25 * 1024 * 1024; // 25 MB
             if (streamToUse.Length > maxSizeBytes)
             {
@@ -99,6 +84,13 @@ public class TranscriptionService
                     "Please reduce recording duration."
                 );
             }
+
+            streamToUse.Position = 0;
+
+            // Validate audio format before uploading
+            AudioFormatValidator.Validate(streamToUse);
+            streamToUse.Position = 0;
+            _logger.LogInfo("Audio format validated (16kHz/16-bit PCM mono)");
 
             // Build transcription prompt using advanced strategies (GPT-generated or basic)
             string prompt = await BuildTranscriptionPromptAsync();
@@ -206,31 +198,12 @@ public class TranscriptionService
     }
 
     /// <summary>
-    /// Builds transcription prompt using advanced strategies from OpenAI Cookbook
-    /// Uses GPT-generated context if available, otherwise falls back to basic prompts
+    /// Builds transcription prompt using basic strategy
     /// </summary>
-    private async Task<string> BuildTranscriptionPromptAsync()
+    private Task<string> BuildTranscriptionPromptAsync()
     {
-        // Try advanced GPT-generated prompts first
-        if (_promptGenerator != null)
-        {
-            try
-            {
-                string optimizedPrompt = await _promptGenerator.BuildOptimizedPromptAsync();
-                if (!string.IsNullOrWhiteSpace(optimizedPrompt))
-                {
-                    _logger.LogInfo("Using GPT-generated optimized prompt");
-                    return optimizedPrompt;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Failed to generate optimized prompt: {Message}. Using basic prompt.", ex.Message);
-            }
-        }
-
-        // Fallback to basic prompt strategy
-        return BuildBasicPrompt();
+        // Use simple prompt - GPT-4o-mini-transcribe works great without complex prompts
+        return Task.FromResult(BuildBasicPrompt());
     }
 
     /// <summary>

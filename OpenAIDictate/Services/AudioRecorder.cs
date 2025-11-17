@@ -119,15 +119,19 @@ public class AudioRecorder : IDisposable
 
             // Finalize WAV file
             await _waveWriter.FlushAsync();
+
+            // Copy stream content before disposing writer (which closes the stream)
+            var audioData = _recordingStream.ToArray();
+
+            // Now safe to dispose writer and stream
             _waveWriter.Dispose();
             _waveWriter = null;
+            _recordingStream.Dispose();
+            _recordingStream = null;
 
-            // Reset stream position for reading
-            _recordingStream.Position = 0;
-
-            // Return the stream (caller is responsible for disposing)
-            var result = _recordingStream;
-            _recordingStream = null; // Prevent disposal in Cleanup
+            // Create new stream with the audio data
+            var result = new MemoryStream(audioData);
+            result.Position = 0;
 
             return result;
         }

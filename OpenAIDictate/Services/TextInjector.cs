@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace OpenAIDictate.Services;
 
@@ -19,7 +20,7 @@ public static class TextInjector
         public INPUTUNION union;
     }
 
-    [StructLayout(LayoutKind.Explicit)]
+    [StructLayout(LayoutKind.Explicit, Size = 28)]
     private struct INPUTUNION
     {
         [FieldOffset(0)]
@@ -33,7 +34,7 @@ public static class TextInjector
         public ushort wScan;
         public uint dwFlags;
         public uint time;
-        public IntPtr dwExtraInfo;
+        public UIntPtr dwExtraInfo;
     }
 
     // Input type
@@ -52,6 +53,11 @@ public static class TextInjector
     /// Uses clipboard + Ctrl+V simulation (universally compatible)
     /// </summary>
     public static async Task InjectAsync(string text)
+    {
+        await RunOnStaThreadAsync(() => InjectInternalAsync(text)).ConfigureAwait(false);
+    }
+
+    private static async Task InjectInternalAsync(string text)
     {
         if (string.IsNullOrEmpty(text))
         {
@@ -92,7 +98,7 @@ public static class TextInjector
                     if (attempt == 3)
                     {
                         Logger.LogError($"Failed to set clipboard after 3 attempts: {ex.Message}");
-                        throw new InvalidOperationException("Failed to access clipboard. It may be locked by another application.", ex);
+                        return;
                     }
                     Logger.LogWarning($"Clipboard locked, retrying ({attempt}/3)...");
                     await Task.Delay(50);
@@ -108,7 +114,10 @@ public static class TextInjector
             await Task.Delay(30);
 
             // 4. Simulate Ctrl+V keystroke
-            SendCtrlV();
+            if (!SendCtrlV())
+            {
+                return;
+            }
 
             // 5. Small delay before restoring clipboard
             await Task.Delay(100);
@@ -132,14 +141,36 @@ public static class TextInjector
         catch (Exception ex)
         {
             Logger.LogError($"Error during text injection: {ex.Message}");
-            throw new InvalidOperationException($"Failed to inject text: {ex.Message}", ex);
         }
+    }
+
+    private static Task RunOnStaThreadAsync(Func<Task> action)
+    {
+        var tcs = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                action().GetAwaiter().GetResult();
+                tcs.SetResult(null);
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+            }
+        });
+
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.IsBackground = true;
+        thread.Start();
+
+        return tcs.Task;
     }
 
     /// <summary>
     /// Simulates Ctrl+V keystroke using SendInput
     /// </summary>
-    private static void SendCtrlV()
+    private static bool SendCtrlV()
     {
         var inputs = new INPUT[4];
 
@@ -161,8 +192,10 @@ public static class TextInjector
         if (result != inputs.Length)
         {
             Logger.LogError($"SendInput failed. Expected {inputs.Length}, sent {result}");
-            throw new InvalidOperationException("Failed to send Ctrl+V keystroke");
+            return false;
         }
+
+        return true;
     }
 
     /// <summary>
@@ -181,7 +214,7 @@ public static class TextInjector
                     wScan = 0,
                     dwFlags = flags,
                     time = 0,
-                    dwExtraInfo = IntPtr.Zero
+                    dwExtraInfo = UIntPtr.Zero
                 }
             }
         };

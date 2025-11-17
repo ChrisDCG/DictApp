@@ -19,7 +19,7 @@ public class SettingsForm : Form
     // Controls
     private TabControl? _tabControl;
     private TextBox? _txtGlossary;
-    private TextBox? _txtLanguage;
+    private ComboBox? _cmbLanguage;
     private ComboBox? _cmbModel;
     private ComboBox? _cmbHotkey;
     private ComboBox? _cmbUiLanguage;
@@ -53,11 +53,11 @@ public class SettingsForm : Form
     private void InitializeComponent()
     {
         Text = SR.SettingsDialogTitle;
-        Width = 600;
-        Height = 500;
-        FormBorderStyle = FormBorderStyle.FixedDialog;
+        Width = 700;
+        Height = 600;
+        FormBorderStyle = FormBorderStyle.Sizable;
         StartPosition = FormStartPosition.CenterScreen;
-        MaximizeBox = false;
+        MaximizeBox = true;
         MinimizeBox = false;
 
         // Tab Control
@@ -153,15 +153,23 @@ public class SettingsForm : Form
         var lblLanguage = new Label { Text = SR.TranscriptionLanguageLabel, Left = 20, Top = yPos, Width = 150 };
         tab.Controls.Add(lblLanguage);
 
-        _txtLanguage = new TextBox
+        _cmbLanguage = new ComboBox
         {
             Left = 180,
-            Top = yPos,
-            Width = 100,
-            MaxLength = 5
+            Top = yPos - 3,
+            Width = 200,
+            DropDownStyle = ComboBoxStyle.DropDownList
         };
-        SetPlaceholderText(_txtLanguage, SR.LanguagePlaceholder);
-        tab.Controls.Add(_txtLanguage);
+        _cmbLanguage.Items.AddRange(new object[]
+        {
+            "Auto",
+            "Deutsch (de)",
+            "English (en)",
+            "Français (fr)",
+            "Español (es)",
+            "Italiano (it)"
+        });
+        tab.Controls.Add(_cmbLanguage);
         yPos += 40;
 
         // UI Language
@@ -567,10 +575,37 @@ public class SettingsForm : Form
         }
 
         // Language
-        if (!string.IsNullOrWhiteSpace(_config.Language))
+        if (_cmbLanguage != null)
         {
-            _txtLanguage!.Text = _config.Language;
-            _txtLanguage.ForeColor = Color.Black;
+            string lang = _config.Language?.ToLowerInvariant() ?? "";
+            if (string.IsNullOrWhiteSpace(lang))
+            {
+                _cmbLanguage.SelectedIndex = 0; // Auto
+            }
+            else if (lang == "de")
+            {
+                _cmbLanguage.SelectedIndex = 1; // Deutsch
+            }
+            else if (lang == "en")
+            {
+                _cmbLanguage.SelectedIndex = 2; // English
+            }
+            else if (lang == "fr")
+            {
+                _cmbLanguage.SelectedIndex = 3; // Français
+            }
+            else if (lang == "es")
+            {
+                _cmbLanguage.SelectedIndex = 4; // Español
+            }
+            else if (lang == "it")
+            {
+                _cmbLanguage.SelectedIndex = 5; // Italiano
+            }
+            else
+            {
+                _cmbLanguage.SelectedIndex = 0; // Auto (default)
+            }
         }
 
         // UI Language
@@ -645,12 +680,35 @@ public class SettingsForm : Form
                 _config.Model = "whisper-1";
             }
 
-            string languageText = _txtLanguage!.Text.Trim();
-            if (string.Equals(languageText, SR.LanguagePlaceholder, StringComparison.Ordinal))
+            // Language from dropdown
+            if (_cmbLanguage!.SelectedIndex == 0)
             {
-                languageText = string.Empty;
+                _config.Language = null; // Auto
             }
-            _config.Language = string.IsNullOrWhiteSpace(languageText) ? null : languageText;
+            else if (_cmbLanguage.SelectedIndex == 1)
+            {
+                _config.Language = "de"; // Deutsch
+            }
+            else if (_cmbLanguage.SelectedIndex == 2)
+            {
+                _config.Language = "en"; // English
+            }
+            else if (_cmbLanguage.SelectedIndex == 3)
+            {
+                _config.Language = "fr"; // Français
+            }
+            else if (_cmbLanguage.SelectedIndex == 4)
+            {
+                _config.Language = "es"; // Español
+            }
+            else if (_cmbLanguage.SelectedIndex == 5)
+            {
+                _config.Language = "it"; // Italiano
+            }
+            else
+            {
+                _config.Language = null; // Default to Auto
+            }
 
             string hotkeyInput = _cmbHotkey!.Text.Trim();
             if (string.IsNullOrWhiteSpace(hotkeyInput))

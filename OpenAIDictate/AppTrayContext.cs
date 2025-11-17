@@ -634,7 +634,14 @@ public class AppTrayContext : ApplicationContext
         protected override void WndProc(ref Message m)
         {
             // Forward hotkey messages to service
-            _context._hotkeyService.ProcessMessage(m.Msg, m.WParam);
+            if (_context._hotkeyService != null)
+            {
+                _context._hotkeyService.ProcessMessage(m.Msg, m.WParam);
+            }
+            else
+            {
+                _context._logger.LogWarning("Received hotkey message before hotkey service initialization (msg: {Message}).", m.Msg);
+            }
 
             base.WndProc(ref m);
         }
